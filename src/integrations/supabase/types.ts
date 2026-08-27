@@ -14,16 +14,185 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      gmail_deposits: {
+        Row: {
+          admin_note: string
+          created_at: string
+          gmail_address: string
+          id: string
+          price: number
+          status: Database["public"]["Enums"]["item_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string
+          created_at?: string
+          gmail_address: string
+          id?: string
+          price?: number
+          status?: Database["public"]["Enums"]["item_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string
+          created_at?: string
+          gmail_address?: string
+          id?: string
+          price?: number
+          status?: Database["public"]["Enums"]["item_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          balance: number
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          announcement: string
+          brand_name: string
+          deposits_open: boolean
+          ewallets: string[]
+          id: number
+          min_withdraw: number
+          price_per_account: number
+          rules: string
+          tagline: string
+          updated_at: string
+          whatsapp: string
+        }
+        Insert: {
+          announcement?: string
+          brand_name?: string
+          deposits_open?: boolean
+          ewallets?: string[]
+          id?: number
+          min_withdraw?: number
+          price_per_account?: number
+          rules?: string
+          tagline?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Update: {
+          announcement?: string
+          brand_name?: string
+          deposits_open?: boolean
+          ewallets?: string[]
+          id?: number
+          min_withdraw?: number
+          price_per_account?: number
+          rules?: string
+          tagline?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      withdrawals: {
+        Row: {
+          admin_note: string
+          amount: number
+          created_at: string
+          ewallet: string
+          ewallet_name: string
+          ewallet_number: string
+          id: string
+          status: Database["public"]["Enums"]["item_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string
+          amount: number
+          created_at?: string
+          ewallet: string
+          ewallet_name: string
+          ewallet_number: string
+          id?: string
+          status?: Database["public"]["Enums"]["item_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string
+          amount?: number
+          created_at?: string
+          ewallet?: string
+          ewallet_name?: string
+          ewallet_number?: string
+          id?: string
+          status?: Database["public"]["Enums"]["item_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      recalc_balance: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      item_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +319,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      item_status: ["pending", "approved", "rejected"],
+    },
   },
 } as const
