@@ -141,7 +141,10 @@ function Dashboard() {
 
   async function removeDeposit(id: string) {
     const { error } = await supabase.from("gmail_deposits").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Setoran dihapus");
     refresh();
   }
@@ -149,10 +152,22 @@ function Dashboard() {
   async function requestWithdraw(e: React.FormEvent) {
     e.preventDefault();
     const value = Number(amount);
-    if (!Number.isFinite(value) || value <= 0) return toast.error("Jumlah tidak valid");
-    if (!ewallet) return toast.error("Pilih e-wallet");
-    if (number.trim().length < 6) return toast.error("Nomor e-wallet tidak valid");
-    if (holder.trim().length < 2) return toast.error("Nama pemilik tidak valid");
+    if (!Number.isFinite(value) || value <= 0) {
+      toast.error("Jumlah tidak valid");
+      return;
+    }
+    if (!ewallet) {
+      toast.error("Pilih e-wallet");
+      return;
+    }
+    if (number.trim().length < 6) {
+      toast.error("Nomor e-wallet tidak valid");
+      return;
+    }
+    if (holder.trim().length < 2) {
+      toast.error("Nama pemilik tidak valid");
+      return;
+    }
 
     setBusy(true);
     const { error } = await supabase.from("withdrawals").insert({
@@ -163,7 +178,11 @@ function Dashboard() {
       ewallet_name: holder.trim().slice(0, 80),
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
     setAmount("");
     setNumber("");
     setHolder("");
