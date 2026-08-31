@@ -44,6 +44,7 @@ function AdminPage() {
   const isAdmin = useIsAdmin(user?.id);
   const { data: settings } = useQuery(settingsQuery);
   const [form, setForm] = useState<SiteSettings | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
