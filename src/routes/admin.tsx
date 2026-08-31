@@ -345,12 +345,50 @@ function AdminPage() {
                   rows={2}
                 />
               </div>
+              <div className="space-y-1.5">
+                <Label>Link grup WhatsApp</Label>
+                <Input
+                  value={form.whatsapp_group}
+                  onChange={(e) => setForm({ ...form, whatsapp_group: e.target.value })}
+                  placeholder="https://chat.whatsapp.com/..."
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Link channel WhatsApp</Label>
+                <Input
+                  value={form.whatsapp_channel}
+                  onChange={(e) => setForm({ ...form, whatsapp_channel: e.target.value })}
+                  placeholder="https://whatsapp.com/channel/..."
+                />
+              </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <Label>Aturan setoran</Label>
+                <Label>Judul informasi umum</Label>
+                <Input
+                  value={form.general_title}
+                  onChange={(e) => setForm({ ...form, general_title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label>Informasi umum (general)</Label>
+                <Textarea
+                  value={form.general}
+                  onChange={(e) => setForm({ ...form, general: e.target.value })}
+                  rows={5}
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label>Judul aturan</Label>
+                <Input
+                  value={form.rules_title}
+                  onChange={(e) => setForm({ ...form, rules_title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label>Aturan / syarat & ketentuan</Label>
                 <Textarea
                   value={form.rules}
                   onChange={(e) => setForm({ ...form, rules: e.target.value })}
-                  rows={3}
+                  rows={6}
                 />
               </div>
               <div className="flex items-center justify-between rounded-xl border border-border p-4 sm:col-span-2">
