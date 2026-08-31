@@ -110,6 +110,25 @@ function Dashboard() {
     },
   });
 
+  const history = [
+    ...(deposits.data ?? []).map((d) => ({
+      kind: "setor" as const,
+      id: d.id,
+      title: d.gmail_address,
+      status: d.status,
+      admin_note: d.admin_note,
+      created_at: d.created_at,
+    })),
+    ...(withdrawals.data ?? []).map((w) => ({
+      kind: "tarik" as const,
+      id: w.id,
+      title: `${rupiah(w.amount)} → ${w.ewallet} ${w.ewallet_number}`,
+      status: w.status,
+      admin_note: w.admin_note,
+      created_at: w.created_at,
+    })),
+  ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["profile"] });
     qc.invalidateQueries({ queryKey: ["deposits"] });
