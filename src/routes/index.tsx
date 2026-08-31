@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, MessageCircle, ShieldCheck, Wallet, Mail } from "lucide-react";
+import { ArrowRight, MessageCircle, Radio, ShieldCheck, Users, Wallet, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { rupiah, settingsQuery } from "@/lib/app-data";
@@ -71,10 +71,31 @@ function Home() {
             <Button asChild variant="outline" size="lg" className="w-full rounded-full sm:w-auto">
               <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer">
                 <MessageCircle className="size-4" />
-                Hubungi Admin
+                WhatsApp Admin
               </a>
             </Button>
           </div>
+
+          {(settings?.whatsapp_group || settings?.whatsapp_channel) && (
+            <div className="mt-3 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              {settings?.whatsapp_group ? (
+                <Button asChild variant="ghost" size="lg" className="w-full rounded-full sm:w-auto">
+                  <a href={settings.whatsapp_group} target="_blank" rel="noreferrer">
+                    <Users className="size-4" />
+                    Grup WhatsApp
+                  </a>
+                </Button>
+              ) : null}
+              {settings?.whatsapp_channel ? (
+                <Button asChild variant="ghost" size="lg" className="w-full rounded-full sm:w-auto">
+                  <a href={settings.whatsapp_channel} target="_blank" rel="noreferrer">
+                    <Radio className="size-4" />
+                    Channel WhatsApp
+                  </a>
+                </Button>
+              ) : null}
+            </div>
+          )}
 
           {settings?.announcement ? (
             <p className="mx-auto mt-8 max-w-xl rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
@@ -109,6 +130,21 @@ function Home() {
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
             </div>
           ))}
+        </section>
+
+        <section className="mt-6 grid gap-4 sm:grid-cols-2">
+          <article className="surface-card p-6">
+            <h2 className="text-base font-bold">{settings?.general_title ?? "Informasi Umum"}</h2>
+            <p className="mt-2 text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+              {settings?.general ?? ""}
+            </p>
+          </article>
+          <article className="surface-card p-6">
+            <h2 className="text-base font-bold">{settings?.rules_title ?? "Syarat & Ketentuan"}</h2>
+            <p className="mt-2 text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+              {settings?.rules ?? ""}
+            </p>
+          </article>
         </section>
 
         <section className="surface-card mt-6 flex flex-col items-center gap-4 p-7 text-center sm:flex-row sm:justify-between sm:text-left">

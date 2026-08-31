@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { LogOut, Mail, Plus, Shield, Trash2, Wallet } from "lucide-react";
+import { LogOut, Mail, MessageCircle, Plus, Radio, Shield, Trash2, Users, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,6 +109,25 @@ function Dashboard() {
       return (data ?? []) as unknown as Withdrawal[];
     },
   });
+
+  const history = [
+    ...(deposits.data ?? []).map((d) => ({
+      kind: "setor" as const,
+      id: d.id,
+      title: d.gmail_address,
+      status: d.status,
+      admin_note: d.admin_note,
+      created_at: d.created_at,
+    })),
+    ...(withdrawals.data ?? []).map((w) => ({
+      kind: "tarik" as const,
+      id: w.id,
+      title: `${rupiah(w.amount)} → ${w.ewallet} ${w.ewallet_number}`,
+      status: w.status,
+      admin_note: w.admin_note,
+      created_at: w.created_at,
+    })),
+  ].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["profile"] });
@@ -236,6 +255,28 @@ function Dashboard() {
           </p>
         ) : null}
 
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" size="sm" className="rounded-full">
+            <a href={`https://wa.me/${settings?.whatsapp ?? ""}`} target="_blank" rel="noreferrer">
+              <MessageCircle className="size-4" /> WhatsApp Admin
+            </a>
+          </Button>
+          {settings?.whatsapp_group ? (
+            <Button asChild variant="outline" size="sm" className="rounded-full">
+              <a href={settings.whatsapp_group} target="_blank" rel="noreferrer">
+                <Users className="size-4" /> Grup
+              </a>
+            </Button>
+          ) : null}
+          {settings?.whatsapp_channel ? (
+            <Button asChild variant="outline" size="sm" className="rounded-full">
+              <a href={settings.whatsapp_channel} target="_blank" rel="noreferrer">
+                <Radio className="size-4" /> Channel
+              </a>
+            </Button>
+          ) : null}
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="surface-card bg-brand p-6 text-primary-foreground sm:col-span-2">
             <p className="text-sm opacity-90">Saldo tersedia</p>
@@ -262,6 +303,9 @@ function Dashboard() {
             </TabsTrigger>
             <TabsTrigger value="tarik" className="flex-1">
               Tarik Saldo
+            </TabsTrigger>
+            <TabsTrigger value="riwayat" className="flex-1">
+              Riwayat
             </TabsTrigger>
           </TabsList>
 
@@ -380,6 +424,42 @@ function Dashboard() {
                     </p>
                   </div>
                   <StatusPill status={w.status} />
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="riwayat" className="space-y-4 pt-4">
+            <div className="surface-card divide-y divide-border overflow-hidden">
+              {history.length === 0 && (
+                <p className="p-6 text-center text-sm text-muted-foreground">Belum ada riwayat.</p>
+              )}
+              {history.map((h) => (
+                <div key={`${h.kind}-${h.id}`} className="space-y-1.5 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">{h.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {h.kind === "setor" ? "Setoran Gmail" : "Penarikan saldo"} ·{" "}
+                        {new Date(h.created_at).toLocaleString("id-ID")}
+                      </p>
+                    </div>
+                    <StatusPill status={h.status} />
+                  </div>
+                  <p className="rounded-xl bg-muted px-3 py-2 text-xs text-muted-foreground">
+                    <span className="font-semibold">
+                      {h.status === "approved"
+                        ? "Alasan diterima: "
+                        : h.status === "rejected"
+                          ? "Alasan ditolak: "
+                          : "Catatan: "}
+                    </span>
+                    {h.admin_note
+                      ? h.admin_note
+                      : h.status === "pending"
+                        ? "Sedang menunggu peninjauan admin."
+                        : "Admin tidak menuliskan alasan."}
+                  </p>
                 </div>
               ))}
             </div>

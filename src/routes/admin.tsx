@@ -44,6 +44,7 @@ function AdminPage() {
   const isAdmin = useIsAdmin(user?.id);
   const { data: settings } = useQuery(settingsQuery);
   const [form, setForm] = useState<SiteSettings | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -103,7 +104,10 @@ function AdminPage() {
   };
 
   async function setDepositStatus(id: string, status: Status) {
-    const { error } = await supabase.from("gmail_deposits").update({ status }).eq("id", id);
+    const { error } = await supabase
+      .from("gmail_deposits")
+      .update({ status, admin_note: (notes[id] ?? "").slice(0, 300) })
+      .eq("id", id);
     if (error) {
       toast.error(error.message);
       return;
@@ -113,7 +117,10 @@ function AdminPage() {
   }
 
   async function setWithdrawStatus(id: string, status: Status) {
-    const { error } = await supabase.from("withdrawals").update({ status }).eq("id", id);
+    const { error } = await supabase
+      .from("withdrawals")
+      .update({ status, admin_note: (notes[id] ?? "").slice(0, 300) })
+      .eq("id", id);
     if (error) {
       toast.error(error.message);
       return;
@@ -143,7 +150,12 @@ function AdminPage() {
         min_withdraw: Number(form.min_withdraw) || 0,
         ewallets: form.ewallets,
         announcement: form.announcement.slice(0, 300),
-        rules: form.rules.slice(0, 500),
+        rules: form.rules.slice(0, 2000),
+        rules_title: form.rules_title.slice(0, 80),
+        general: form.general.slice(0, 2000),
+        general_title: form.general_title.slice(0, 80),
+        whatsapp_group: form.whatsapp_group.trim().slice(0, 300),
+        whatsapp_channel: form.whatsapp_channel.trim().slice(0, 300),
         deposits_open: form.deposits_open,
       })
       .eq("id", 1);
@@ -237,6 +249,14 @@ function AdminPage() {
                       <Trash2 className="size-4" />
                     </Button>
                   </div>
+                  <div className="w-full">
+                    <Input
+                      value={notes[d.id] ?? d.admin_note ?? ""}
+                      onChange={(e) => setNotes({ ...notes, [d.id]: e.target.value })}
+                      placeholder="Alasan diterima / ditolak (tampil ke pengguna)"
+                      maxLength={300}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -265,6 +285,14 @@ function AdminPage() {
                     <Button size="icon" variant="outline" onClick={() => setWithdrawStatus(w.id, "rejected")}>
                       <X className="size-4 text-destructive" />
                     </Button>
+                  </div>
+                  <div className="w-full">
+                    <Input
+                      value={notes[w.id] ?? w.admin_note ?? ""}
+                      onChange={(e) => setNotes({ ...notes, [w.id]: e.target.value })}
+                      placeholder="Alasan diterima / ditolak (tampil ke pengguna)"
+                      maxLength={300}
+                    />
                   </div>
                 </div>
               ))}
@@ -340,12 +368,50 @@ function AdminPage() {
                   rows={2}
                 />
               </div>
+              <div className="space-y-1.5">
+                <Label>Link grup WhatsApp</Label>
+                <Input
+                  value={form.whatsapp_group}
+                  onChange={(e) => setForm({ ...form, whatsapp_group: e.target.value })}
+                  placeholder="https://chat.whatsapp.com/..."
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Link channel WhatsApp</Label>
+                <Input
+                  value={form.whatsapp_channel}
+                  onChange={(e) => setForm({ ...form, whatsapp_channel: e.target.value })}
+                  placeholder="https://whatsapp.com/channel/..."
+                />
+              </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <Label>Aturan setoran</Label>
+                <Label>Judul informasi umum</Label>
+                <Input
+                  value={form.general_title}
+                  onChange={(e) => setForm({ ...form, general_title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label>Informasi umum (general)</Label>
+                <Textarea
+                  value={form.general}
+                  onChange={(e) => setForm({ ...form, general: e.target.value })}
+                  rows={5}
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label>Judul aturan</Label>
+                <Input
+                  value={form.rules_title}
+                  onChange={(e) => setForm({ ...form, rules_title: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label>Aturan / syarat & ketentuan</Label>
                 <Textarea
                   value={form.rules}
                   onChange={(e) => setForm({ ...form, rules: e.target.value })}
-                  rows={3}
+                  rows={6}
                 />
               </div>
               <div className="flex items-center justify-between rounded-xl border border-border p-4 sm:col-span-2">
