@@ -71,10 +71,31 @@ function Home() {
             <Button asChild variant="outline" size="lg" className="w-full rounded-full sm:w-auto">
               <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer">
                 <MessageCircle className="size-4" />
-                Hubungi Admin
+                WhatsApp Admin
               </a>
             </Button>
           </div>
+
+          {(settings?.whatsapp_group || settings?.whatsapp_channel) && (
+            <div className="mt-3 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              {settings?.whatsapp_group ? (
+                <Button asChild variant="ghost" size="lg" className="w-full rounded-full sm:w-auto">
+                  <a href={settings.whatsapp_group} target="_blank" rel="noreferrer">
+                    <Users className="size-4" />
+                    Grup WhatsApp
+                  </a>
+                </Button>
+              ) : null}
+              {settings?.whatsapp_channel ? (
+                <Button asChild variant="ghost" size="lg" className="w-full rounded-full sm:w-auto">
+                  <a href={settings.whatsapp_channel} target="_blank" rel="noreferrer">
+                    <Radio className="size-4" />
+                    Channel WhatsApp
+                  </a>
+                </Button>
+              ) : null}
+            </div>
+          )}
 
           {settings?.announcement ? (
             <p className="mx-auto mt-8 max-w-xl rounded-2xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning-foreground">
