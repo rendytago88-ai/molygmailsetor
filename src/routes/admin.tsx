@@ -143,7 +143,12 @@ function AdminPage() {
         min_withdraw: Number(form.min_withdraw) || 0,
         ewallets: form.ewallets,
         announcement: form.announcement.slice(0, 300),
-        rules: form.rules.slice(0, 500),
+        rules: form.rules.slice(0, 2000),
+        rules_title: form.rules_title.slice(0, 80),
+        general: form.general.slice(0, 2000),
+        general_title: form.general_title.slice(0, 80),
+        whatsapp_group: form.whatsapp_group.trim().slice(0, 300),
+        whatsapp_channel: form.whatsapp_channel.trim().slice(0, 300),
         deposits_open: form.deposits_open,
       })
       .eq("id", 1);
