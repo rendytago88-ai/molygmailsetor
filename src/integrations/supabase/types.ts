@@ -80,39 +80,54 @@ export type Database = {
           brand_name: string
           deposits_open: boolean
           ewallets: string[]
+          general: string
+          general_title: string
           id: number
           min_withdraw: number
           price_per_account: number
           rules: string
+          rules_title: string
           tagline: string
           updated_at: string
           whatsapp: string
+          whatsapp_channel: string
+          whatsapp_group: string
         }
         Insert: {
           announcement?: string
           brand_name?: string
           deposits_open?: boolean
           ewallets?: string[]
+          general?: string
+          general_title?: string
           id?: number
           min_withdraw?: number
           price_per_account?: number
           rules?: string
+          rules_title?: string
           tagline?: string
           updated_at?: string
           whatsapp?: string
+          whatsapp_channel?: string
+          whatsapp_group?: string
         }
         Update: {
           announcement?: string
           brand_name?: string
           deposits_open?: boolean
           ewallets?: string[]
+          general?: string
+          general_title?: string
           id?: number
           min_withdraw?: number
           price_per_account?: number
           rules?: string
+          rules_title?: string
           tagline?: string
           updated_at?: string
           whatsapp?: string
+          whatsapp_channel?: string
+          whatsapp_group?: string
         }
         Relationships: []
       }
