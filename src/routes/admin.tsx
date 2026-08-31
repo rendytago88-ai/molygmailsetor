@@ -103,7 +103,10 @@ function AdminPage() {
   };
 
   async function setDepositStatus(id: string, status: Status) {
-    const { error } = await supabase.from("gmail_deposits").update({ status }).eq("id", id);
+    const { error } = await supabase
+      .from("gmail_deposits")
+      .update({ status, admin_note: (notes[id] ?? "").slice(0, 300) })
+      .eq("id", id);
     if (error) {
       toast.error(error.message);
       return;
@@ -113,7 +116,10 @@ function AdminPage() {
   }
 
   async function setWithdrawStatus(id: string, status: Status) {
-    const { error } = await supabase.from("withdrawals").update({ status }).eq("id", id);
+    const { error } = await supabase
+      .from("withdrawals")
+      .update({ status, admin_note: (notes[id] ?? "").slice(0, 300) })
+      .eq("id", id);
     if (error) {
       toast.error(error.message);
       return;
