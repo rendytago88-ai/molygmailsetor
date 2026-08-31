@@ -263,6 +263,9 @@ function Dashboard() {
             <TabsTrigger value="tarik" className="flex-1">
               Tarik Saldo
             </TabsTrigger>
+            <TabsTrigger value="riwayat" className="flex-1">
+              Riwayat
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="setor" className="space-y-4 pt-4">
