@@ -255,6 +255,28 @@ function Dashboard() {
           </p>
         ) : null}
 
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" size="sm" className="rounded-full">
+            <a href={`https://wa.me/${settings?.whatsapp ?? ""}`} target="_blank" rel="noreferrer">
+              <MessageCircle className="size-4" /> WhatsApp Admin
+            </a>
+          </Button>
+          {settings?.whatsapp_group ? (
+            <Button asChild variant="outline" size="sm" className="rounded-full">
+              <a href={settings.whatsapp_group} target="_blank" rel="noreferrer">
+                <Users className="size-4" /> Grup
+              </a>
+            </Button>
+          ) : null}
+          {settings?.whatsapp_channel ? (
+            <Button asChild variant="outline" size="sm" className="rounded-full">
+              <a href={settings.whatsapp_channel} target="_blank" rel="noreferrer">
+                <Radio className="size-4" /> Channel
+              </a>
+            </Button>
+          ) : null}
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="surface-card bg-brand p-6 text-primary-foreground sm:col-span-2">
             <p className="text-sm opacity-90">Saldo tersedia</p>
