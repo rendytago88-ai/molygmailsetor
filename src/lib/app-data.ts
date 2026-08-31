@@ -12,6 +12,11 @@ export type SiteSettings = {
   ewallets: string[];
   announcement: string;
   rules: string;
+  rules_title: string;
+  general: string;
+  general_title: string;
+  whatsapp_group: string;
+  whatsapp_channel: string;
   deposits_open: boolean;
 };
 
