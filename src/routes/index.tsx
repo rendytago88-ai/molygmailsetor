@@ -132,6 +132,21 @@ function Home() {
           ))}
         </section>
 
+        <section className="mt-6 grid gap-4 sm:grid-cols-2">
+          <article className="surface-card p-6">
+            <h2 className="text-base font-bold">{settings?.general_title ?? "Informasi Umum"}</h2>
+            <p className="mt-2 text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+              {settings?.general ?? ""}
+            </p>
+          </article>
+          <article className="surface-card p-6">
+            <h2 className="text-base font-bold">{settings?.rules_title ?? "Syarat & Ketentuan"}</h2>
+            <p className="mt-2 text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+              {settings?.rules ?? ""}
+            </p>
+          </article>
+        </section>
+
         <section className="surface-card mt-6 flex flex-col items-center gap-4 p-7 text-center sm:flex-row sm:justify-between sm:text-left">
           <div>
             <p className="text-sm text-muted-foreground">Harga per akun Gmail disetujui</p>
