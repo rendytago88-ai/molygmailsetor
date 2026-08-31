@@ -249,6 +249,14 @@ function AdminPage() {
                       <Trash2 className="size-4" />
                     </Button>
                   </div>
+                  <div className="w-full">
+                    <Input
+                      value={notes[d.id] ?? d.admin_note ?? ""}
+                      onChange={(e) => setNotes({ ...notes, [d.id]: e.target.value })}
+                      placeholder="Alasan diterima / ditolak (tampil ke pengguna)"
+                      maxLength={300}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
