@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, MessageCircle, ShieldCheck, Wallet, Mail } from "lucide-react";
+import { ArrowRight, MessageCircle, Radio, ShieldCheck, Users, Wallet, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { rupiah, settingsQuery } from "@/lib/app-data";
