@@ -3,7 +3,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { LogOut, Mail, MessageCircle, Plus, Radio, Shield, Trash2, Users, Wallet } from "lucide-react";
+import { LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { generateGmailIdeas } from "@/lib/gmail-ai.functions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
