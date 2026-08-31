@@ -3,7 +3,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { LogOut, Mail, MessageCircle, Plus, Radio, Shield, Trash2, Users, Wallet } from "lucide-react";
+import { LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { generateGmailIdeas } from "@/lib/gmail-ai.functions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -325,6 +327,37 @@ function Dashboard() {
                 <Button type="submit" className="rounded-full" disabled={busy || !depositsOpen}>
                   <Plus className="size-4" /> Setor
                 </Button>
+              </div>
+              <div className="rounded-xl border border-dashed border-border p-3">
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    value={hint}
+                    onChange={(e) => setHint(e.target.value)}
+                    placeholder="Tema nama (opsional), misal: nama pendek, hobi bola"
+                    maxLength={60}
+                  />
+                  <Button type="button" variant="outline" className="rounded-full" onClick={generateIdeas} disabled={aiBusy}>
+                    <Sparkles className="size-4" /> {aiBusy ? "Membuat..." : "Generate AI"}
+                  </Button>
+                </div>
+                {ideas.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {ideas.map((idea) => (
+                      <button
+                        key={idea}
+                        type="button"
+                        onClick={() => setGmail(idea)}
+                        className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium hover:bg-accent"
+                      >
+                        {idea}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Saran nama dibuat AI. Buat akun Gmail-nya sendiri, lalu setor alamatnya di sini. Jangan pernah
+                  membagikan kata sandi.
+                </p>
               </div>
               <p className="text-xs text-muted-foreground">
                 {depositsOpen ? settings?.rules : "Setoran sedang ditutup sementara oleh admin."}
