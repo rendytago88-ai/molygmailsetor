@@ -22,6 +22,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import {
+  depositScheduleMessage,
+  depositScheduleOpen,
   rupiah,
   settingsQuery,
   statusLabel,
@@ -158,6 +160,10 @@ function Dashboard() {
 
   async function addDeposit(e: React.FormEvent) {
     e.preventDefault();
+    if (!depositScheduleOpen()) {
+      toast.error(depositScheduleMessage());
+      return;
+    }
     const lines = gmail
       .split(/[\n,;\s]+/)
       .map((l) => l.trim())
@@ -255,7 +261,13 @@ function Dashboard() {
     return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Memuat…</div>;
   }
 
-  const depositsOpen = settings?.deposits_open ?? true;
+  const scheduleOpen = depositScheduleOpen(now);
+  const depositsOpen = (settings?.deposits_open ?? true) && scheduleOpen;
+  const depositNotice = !scheduleOpen
+    ? depositScheduleMessage(now)
+    : !(settings?.deposits_open ?? true)
+      ? "Setoran sedang ditutup sementara oleh admin."
+      : depositScheduleMessage(now);
 
   return (
     <div className="min-h-screen bg-sky pb-16">
@@ -401,7 +413,7 @@ function Dashboard() {
                 </p>
               </div>
               <p className="text-xs text-muted-foreground">
-                {depositsOpen ? settings?.rules : "Setoran sedang ditutup sementara oleh admin."}
+                {depositsOpen ? settings?.rules : depositNotice}
               </p>
             </form>
 
