@@ -19,7 +19,7 @@ export const generateGmailIdeas = createServerFn({ method: "POST" })
           {
             role: "system",
             content:
-              "Kamu membuat ide nama alamat Gmail baru. Balas HANYA JSON array berisi 6 string alamat lengkap berakhiran @gmail.com. Gunakan huruf kecil, angka, titik, tanpa spasi, panjang bagian nama 6-20 karakter. Jangan menyertakan kata sandi atau penjelasan.",
+              "Kamu membuat ide nama alamat Gmail baru. Balas HANYA JSON array berisi 6 string alamat lengkap berakhiran @gmail.com. Aturan ketat: huruf kecil semua, TANPA titik, TANPA garis bawah, TANPA spasi, TANPA simbol apa pun. Boleh diakhiri angka maksimal 3 digit (opsional), dan angka hanya boleh di akhir nama. Panjang bagian nama 6-20 karakter. Jangan menyertakan kata sandi atau penjelasan.",
           },
           {
             role: "user",
@@ -41,6 +41,16 @@ export const generateGmailIdeas = createServerFn({ method: "POST" })
     const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
     const text = json.choices?.[0]?.message?.content ?? "";
     const matches = text.match(/[a-z0-9._%+-]+@gmail\.com/gi) ?? [];
-    const suggestions = Array.from(new Set(matches.map((m) => m.toLowerCase()))).slice(0, 6);
+    const cleaned = matches
+      .map((m) => m.toLowerCase().split("@")[0] ?? "")
+      .map((local) => {
+        const stripped = local.replace(/[^a-z0-9]/g, "");
+        const letters = stripped.replace(/[0-9]/g, "");
+        const digits = (stripped.match(/[0-9]/g) ?? []).join("").slice(0, 3);
+        return `${letters.slice(0, 17)}${digits}`;
+      })
+      .filter((local) => local.length >= 6)
+      .map((local) => `${local}@gmail.com`);
+    const suggestions = Array.from(new Set(cleaned)).slice(0, 6);
     return { suggestions, error: suggestions.length ? null : "Tidak ada saran yang dihasilkan." };
   });

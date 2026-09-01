@@ -10,6 +10,7 @@ import { generateGmailIdeas } from "@/lib/gmail-ai.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -75,6 +76,7 @@ function Dashboard() {
   const [ideas, setIdeas] = useState<string[]>([]);
   const [aiBusy, setAiBusy] = useState(false);
   const genFn = useServerFn(generateGmailIdeas);
+  const gmailCount = gmail.split(/[\n,;\s]+/).filter((l) => l.trim().length > 0).length;
 
   async function generateIdeas() {
     setAiBusy(true);
@@ -156,24 +158,45 @@ function Dashboard() {
 
   async function addDeposit(e: React.FormEvent) {
     e.preventDefault();
-    const parsed = gmailSchema.safeParse(gmail);
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Alamat tidak valid");
+    const lines = gmail
+      .split(/[\n,;\s]+/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    if (lines.length === 0) {
+      toast.error("Masukkan minimal 1 alamat Gmail");
       return;
     }
+    if (lines.length > 99) {
+      toast.error("Maksimal 99 baris per setoran");
+      return;
+    }
+
+    const valid: string[] = [];
+    for (const line of lines) {
+      const parsed = gmailSchema.safeParse(line);
+      if (!parsed.success) {
+        toast.error(`${line}: ${parsed.error.issues[0]?.message ?? "Alamat tidak valid"}`);
+        return;
+      }
+      if (!valid.includes(parsed.data)) valid.push(parsed.data);
+    }
+
     setBusy(true);
-    const { error } = await supabase.from("gmail_deposits").insert({
-      user_id: user!.id,
-      gmail_address: parsed.data,
-      price: settings?.price_per_account ?? 0,
-    });
+    const { error } = await supabase.from("gmail_deposits").insert(
+      valid.map((address) => ({
+        user_id: user!.id,
+        gmail_address: address,
+        price: settings?.price_per_account ?? 0,
+      })),
+    );
     setBusy(false);
     if (error) {
-      toast.error(error.message.includes("duplicate") ? "Alamat Gmail ini sudah pernah disetor" : error.message);
+      toast.error(error.message.includes("duplicate") ? "Ada alamat Gmail yang sudah pernah disetor" : error.message);
       return;
     }
     setGmail("");
-    toast.success("Setoran terkirim, menunggu verifikasi admin");
+    toast.success(`${valid.length} setoran terkirim, menunggu verifikasi admin`);
     refresh();
   }
 
@@ -330,19 +353,20 @@ function Dashboard() {
 
           <TabsContent value="setor" className="space-y-4 pt-4">
             <form onSubmit={addDeposit} className="surface-card space-y-3 p-6">
-              <Label htmlFor="gmail">Alamat Gmail</Label>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Input
-                  id="gmail"
-                  type="email"
-                  value={gmail}
-                  onChange={(e) => setGmail(e.target.value)}
-                  placeholder="namakamu@gmail.com"
-                  disabled={!depositsOpen}
-                  maxLength={255}
-                />
+              <Label htmlFor="gmail">Alamat Gmail (bisa banyak, 1 baris 1 alamat, maks. 99)</Label>
+              <Textarea
+                id="gmail"
+                value={gmail}
+                onChange={(e) => setGmail(e.target.value)}
+                placeholder={"namakamu@gmail.com\nnamalain123@gmail.com"}
+                disabled={!depositsOpen}
+                rows={6}
+                maxLength={26000}
+              />
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs text-muted-foreground">{gmailCount} / 99 baris</p>
                 <Button type="submit" className="rounded-full" disabled={busy || !depositsOpen}>
-                  <Plus className="size-4" /> Setor
+                  <Plus className="size-4" /> Setor {gmailCount > 1 ? `${gmailCount} akun` : ""}
                 </Button>
               </div>
               <div className="rounded-xl border border-dashed border-border p-3">
@@ -363,7 +387,7 @@ function Dashboard() {
                       <button
                         key={idea}
                         type="button"
-                        onClick={() => setGmail(idea)}
+                        onClick={() => setGmail((prev) => (prev.trim() ? `${prev.trim()}\n${idea}` : idea))}
                         className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium hover:bg-accent"
                       >
                         {idea}
