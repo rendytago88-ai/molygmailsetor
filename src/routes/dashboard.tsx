@@ -71,6 +71,23 @@ function Dashboard() {
   const [number, setNumber] = useState("");
   const [holder, setHolder] = useState("");
   const [busy, setBusy] = useState(false);
+  const [hint, setHint] = useState("");
+  const [ideas, setIdeas] = useState<string[]>([]);
+  const [aiBusy, setAiBusy] = useState(false);
+  const genFn = useServerFn(generateGmailIdeas);
+
+  async function generateIdeas() {
+    setAiBusy(true);
+    try {
+      const res = await genFn({ data: { hint } });
+      if (res.error) toast.error(res.error);
+      setIdeas(res.suggestions ?? []);
+    } catch {
+      toast.error("Gagal membuat saran.");
+    } finally {
+      setAiBusy(false);
+    }
+  }
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
