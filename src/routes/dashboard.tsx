@@ -10,6 +10,7 @@ import { generateGmailIdeas } from "@/lib/gmail-ai.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -75,6 +76,7 @@ function Dashboard() {
   const [ideas, setIdeas] = useState<string[]>([]);
   const [aiBusy, setAiBusy] = useState(false);
   const genFn = useServerFn(generateGmailIdeas);
+  const gmailCount = gmail.split(/[\n,;\s]+/).filter((l) => l.trim().length > 0).length;
 
   async function generateIdeas() {
     setAiBusy(true);
