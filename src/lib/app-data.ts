@@ -65,9 +65,9 @@ export const settingsQuery = {
 };
 
 export const statusLabel: Record<Status, string> = {
-  pending: "Menunggu",
-  approved: "Disetujui",
-  rejected: "Ditolak",
+  pending: "PENDING",
+  approved: "DITERIMA",
+  rejected: "DITOLAK",
 };
 
 export const statusTone: Record<Status, string> = {
