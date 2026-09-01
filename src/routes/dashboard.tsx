@@ -387,7 +387,7 @@ function Dashboard() {
                       <button
                         key={idea}
                         type="button"
-                        onClick={() => setGmail(idea)}
+                        onClick={() => setGmail((prev) => (prev.trim() ? `${prev.trim()}\n${idea}` : idea))}
                         className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium hover:bg-accent"
                       >
                         {idea}
