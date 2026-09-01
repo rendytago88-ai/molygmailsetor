@@ -351,19 +351,20 @@ function Dashboard() {
 
           <TabsContent value="setor" className="space-y-4 pt-4">
             <form onSubmit={addDeposit} className="surface-card space-y-3 p-6">
-              <Label htmlFor="gmail">Alamat Gmail</Label>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <Input
-                  id="gmail"
-                  type="email"
-                  value={gmail}
-                  onChange={(e) => setGmail(e.target.value)}
-                  placeholder="namakamu@gmail.com"
-                  disabled={!depositsOpen}
-                  maxLength={255}
-                />
+              <Label htmlFor="gmail">Alamat Gmail (bisa banyak, 1 baris 1 alamat, maks. 99)</Label>
+              <Textarea
+                id="gmail"
+                value={gmail}
+                onChange={(e) => setGmail(e.target.value)}
+                placeholder={"namakamu@gmail.com\nnamalain123@gmail.com"}
+                disabled={!depositsOpen}
+                rows={6}
+                maxLength={26000}
+              />
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs text-muted-foreground">{gmailCount} / 99 baris</p>
                 <Button type="submit" className="rounded-full" disabled={busy || !depositsOpen}>
-                  <Plus className="size-4" /> Setor
+                  <Plus className="size-4" /> Setor {gmailCount > 1 ? `${gmailCount} akun` : ""}
                 </Button>
               </div>
               <div className="rounded-xl border border-dashed border-border p-3">
