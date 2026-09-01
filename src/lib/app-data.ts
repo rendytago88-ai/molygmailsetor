@@ -75,3 +75,26 @@ export const statusTone: Record<Status, string> = {
   approved: "bg-success/15 text-success border-success/30",
   rejected: "bg-destructive/10 text-destructive border-destructive/30",
 };
+
+// Jadwal setoran otomatis (WIB / UTC+7): buka 07.00-16.00, tutup Sabtu & Minggu.
+export const DEPOSIT_OPEN_HOUR = 7;
+export const DEPOSIT_CLOSE_HOUR = 16;
+
+export function wibParts(date: Date = new Date()) {
+  const wib = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+  return { day: wib.getUTCDay(), hour: wib.getUTCHours(), minute: wib.getUTCMinutes() };
+}
+
+export function depositScheduleOpen(date: Date = new Date()) {
+  const { day, hour } = wibParts(date);
+  if (day === 0 || day === 6) return false;
+  return hour >= DEPOSIT_OPEN_HOUR && hour < DEPOSIT_CLOSE_HOUR;
+}
+
+export function depositScheduleMessage(date: Date = new Date()) {
+  const { day, hour } = wibParts(date);
+  if (day === 0 || day === 6) return "Setoran tutup pada hari Sabtu & Minggu. Buka lagi Senin pukul 07.00 WIB.";
+  if (hour < DEPOSIT_OPEN_HOUR) return "Setoran dibuka otomatis pukul 07.00 WIB.";
+  if (hour >= DEPOSIT_CLOSE_HOUR) return "Setoran ditutup otomatis pukul 16.00 WIB. Buka lagi besok pukul 07.00 WIB.";
+  return "Setoran dibuka setiap Senin-Jumat, pukul 07.00-16.00 WIB.";
+}
