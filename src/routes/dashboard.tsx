@@ -156,24 +156,45 @@ function Dashboard() {
 
   async function addDeposit(e: React.FormEvent) {
     e.preventDefault();
-    const parsed = gmailSchema.safeParse(gmail);
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Alamat tidak valid");
+    const lines = gmail
+      .split(/[\n,;\s]+/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    if (lines.length === 0) {
+      toast.error("Masukkan minimal 1 alamat Gmail");
       return;
     }
+    if (lines.length > 99) {
+      toast.error("Maksimal 99 baris per setoran");
+      return;
+    }
+
+    const valid: string[] = [];
+    for (const line of lines) {
+      const parsed = gmailSchema.safeParse(line);
+      if (!parsed.success) {
+        toast.error(`${line}: ${parsed.error.issues[0]?.message ?? "Alamat tidak valid"}`);
+        return;
+      }
+      if (!valid.includes(parsed.data)) valid.push(parsed.data);
+    }
+
     setBusy(true);
-    const { error } = await supabase.from("gmail_deposits").insert({
-      user_id: user!.id,
-      gmail_address: parsed.data,
-      price: settings?.price_per_account ?? 0,
-    });
+    const { error } = await supabase.from("gmail_deposits").insert(
+      valid.map((address) => ({
+        user_id: user!.id,
+        gmail_address: address,
+        price: settings?.price_per_account ?? 0,
+      })),
+    );
     setBusy(false);
     if (error) {
-      toast.error(error.message.includes("duplicate") ? "Alamat Gmail ini sudah pernah disetor" : error.message);
+      toast.error(error.message.includes("duplicate") ? "Ada alamat Gmail yang sudah pernah disetor" : error.message);
       return;
     }
     setGmail("");
-    toast.success("Setoran terkirim, menunggu verifikasi admin");
+    toast.success(`${valid.length} setoran terkirim, menunggu verifikasi admin`);
     refresh();
   }
 
