@@ -22,6 +22,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import {
+  depositScheduleMessage,
+  depositScheduleOpen,
   rupiah,
   settingsQuery,
   statusLabel,
@@ -72,6 +74,12 @@ function Dashboard() {
   const [number, setNumber] = useState("");
   const [holder, setHolder] = useState("");
   const [busy, setBusy] = useState(false);
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(t);
+  }, []);
   const [hint, setHint] = useState("");
   const [ideas, setIdeas] = useState<string[]>([]);
   const [aiBusy, setAiBusy] = useState(false);
@@ -158,6 +166,10 @@ function Dashboard() {
 
   async function addDeposit(e: React.FormEvent) {
     e.preventDefault();
+    if (!depositScheduleOpen()) {
+      toast.error(depositScheduleMessage());
+      return;
+    }
     const lines = gmail
       .split(/[\n,;\s]+/)
       .map((l) => l.trim())
@@ -255,7 +267,13 @@ function Dashboard() {
     return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Memuat…</div>;
   }
 
-  const depositsOpen = settings?.deposits_open ?? true;
+  const scheduleOpen = depositScheduleOpen(now);
+  const depositsOpen = (settings?.deposits_open ?? true) && scheduleOpen;
+  const depositNotice = !scheduleOpen
+    ? depositScheduleMessage(now)
+    : !(settings?.deposits_open ?? true)
+      ? "Setoran sedang ditutup sementara oleh admin."
+      : depositScheduleMessage(now);
 
   return (
     <div className="min-h-screen bg-sky pb-16">
@@ -352,6 +370,15 @@ function Dashboard() {
           </TabsList>
 
           <TabsContent value="setor" className="space-y-4 pt-4">
+            <div
+              className={`rounded-xl border p-3 text-xs font-medium ${
+                depositsOpen
+                  ? "border-success/30 bg-success/10 text-success"
+                  : "border-destructive/30 bg-destructive/10 text-destructive"
+              }`}
+            >
+              {depositsOpen ? "Setoran DIBUKA" : "Setoran DITUTUP"} — {depositNotice}
+            </div>
             <form onSubmit={addDeposit} className="surface-card space-y-3 p-6">
               <Label htmlFor="gmail">Alamat Gmail (bisa banyak, 1 baris 1 alamat, maks. 99)</Label>
               <Textarea
@@ -401,7 +428,7 @@ function Dashboard() {
                 </p>
               </div>
               <p className="text-xs text-muted-foreground">
-                {depositsOpen ? settings?.rules : "Setoran sedang ditutup sementara oleh admin."}
+                {depositsOpen ? settings?.rules : depositNotice}
               </p>
             </form>
 
