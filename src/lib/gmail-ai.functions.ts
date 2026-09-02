@@ -1,11 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const ALLOWED_COUNTS = [1, 5, 10, 20] as const;
+
 export const generateGmailIdeas = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { hint?: string }) => ({
-    hint: String(input?.hint ?? "").slice(0, 60),
-  }))
+  .inputValidator((input: { count?: number }) => {
+    const count = Number(input?.count);
+    return { count: (ALLOWED_COUNTS as readonly number[]).includes(count) ? count : 5 };
+  })
   .handler(async ({ data }) => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { suggestions: [] as string[], error: "AI belum tersedia." };
@@ -19,13 +22,11 @@ export const generateGmailIdeas = createServerFn({ method: "POST" })
           {
             role: "system",
             content:
-              "Kamu membuat ide nama alamat Gmail baru. Balas HANYA JSON array berisi 6 string alamat lengkap berakhiran @gmail.com. Aturan ketat: huruf kecil semua, TANPA titik, TANPA garis bawah, TANPA spasi, TANPA simbol apa pun. Boleh diakhiri angka maksimal 3 digit (opsional), dan angka hanya boleh di akhir nama. Panjang bagian nama 6-20 karakter. Jangan menyertakan kata sandi atau penjelasan.",
+              "Kamu membuat ide nama alamat Gmail baru. Balas HANYA JSON array berisi string alamat lengkap berakhiran @gmail.com. Aturan ketat: huruf kecil semua, TANPA titik, TANPA garis bawah, TANPA spasi, TANPA simbol apa pun. Nama harus berunsur nama orang (nama depan, nama belakang, atau gabungan nama orang Indonesia/internasional) yang natural dan mudah dibaca. WAJIB diakhiri TEPAT 3 angka di belakang nama (contoh: budisantoso482@gmail.com). Panjang bagian nama 6-20 karakter. Setiap saran harus unik dan acak. Jangan menyertakan kata sandi atau penjelasan apa pun.",
           },
           {
             role: "user",
-            content: data.hint
-              ? `Buat ide alamat gmail bertema: ${data.hint}`
-              : "Buat ide alamat gmail acak yang natural dan mudah diingat.",
+            content: `Buat TEPAT ${data.count} ide alamat gmail acak berunsur nama orang, mudah dibaca, masing-masing diakhiri tepat 3 angka.`,
           },
         ],
       }),
@@ -46,11 +47,14 @@ export const generateGmailIdeas = createServerFn({ method: "POST" })
       .map((local) => {
         const stripped = local.replace(/[^a-z0-9]/g, "");
         const letters = stripped.replace(/[0-9]/g, "");
-        const digits = (stripped.match(/[0-9]/g) ?? []).join("").slice(0, 3);
-        return `${letters.slice(0, 17)}${digits}`;
+        const digits = (stripped.match(/[0-9]/g) ?? []).join("");
+        // Tepat 3 angka di belakang: tambah angka acak bila kurang, potong bila lebih
+        const need = Math.max(0, 3 - digits.length);
+        const extra = Array.from({ length: need }, () => Math.floor(Math.random() * 10)).join("");
+        return `${letters.slice(0, 17)}${(digits + extra).slice(0, 3)}`;
       })
-      .filter((local) => local.length >= 6)
+      .filter((local) => /[a-z]{3,}/.test(local) && local.length >= 6)
       .map((local) => `${local}@gmail.com`);
-    const suggestions = Array.from(new Set(cleaned)).slice(0, 6);
+    const suggestions = Array.from(new Set(cleaned)).slice(0, data.count);
     return { suggestions, error: suggestions.length ? null : "Tidak ada saran yang dihasilkan." };
   });

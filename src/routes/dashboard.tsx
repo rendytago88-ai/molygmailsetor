@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet } from "lucide-react";
+import { Check, Copy, LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet, X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { generateGmailIdeas } from "@/lib/gmail-ai.functions";
 
@@ -80,22 +80,34 @@ function Dashboard() {
     const t = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(t);
   }, []);
-  const [hint, setHint] = useState("");
+  const [ideaCount, setIdeaCount] = useState("5");
   const [ideas, setIdeas] = useState<string[]>([]);
   const [aiBusy, setAiBusy] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
   const genFn = useServerFn(generateGmailIdeas);
   const gmailCount = gmail.split(/[\n,;\s]+/).filter((l) => l.trim().length > 0).length;
 
   async function generateIdeas() {
     setAiBusy(true);
     try {
-      const res = await genFn({ data: { hint } });
+      const res = await genFn({ data: { count: Number(ideaCount) } });
       if (res.error) toast.error(res.error);
       setIdeas(res.suggestions ?? []);
     } catch {
       toast.error("Gagal membuat saran.");
     } finally {
       setAiBusy(false);
+    }
+  }
+
+  async function copyIdea(idea: string) {
+    try {
+      await navigator.clipboard.writeText(idea);
+      setCopied(idea);
+      toast.success("Disalin ke clipboard");
+      setTimeout(() => setCopied((c) => (c === idea ? null : c)), 1500);
+    } catch {
+      toast.error("Gagal menyalin.");
     }
   }
 
@@ -397,34 +409,63 @@ function Dashboard() {
                 </Button>
               </div>
               <div className="rounded-xl border border-dashed border-border p-3">
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <Input
-                    value={hint}
-                    onChange={(e) => setHint(e.target.value)}
-                    placeholder="Tema nama (opsional), misal: nama pendek, hobi bola"
-                    maxLength={60}
-                  />
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <Select value={ideaCount} onValueChange={setIdeaCount}>
+                    <SelectTrigger className="sm:w-40">
+                      <SelectValue placeholder="Jumlah" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 alamat</SelectItem>
+                      <SelectItem value="5">5 alamat</SelectItem>
+                      <SelectItem value="10">10 alamat</SelectItem>
+                      <SelectItem value="20">20 alamat</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Button type="button" variant="outline" className="rounded-full" onClick={generateIdeas} disabled={aiBusy}>
                     <Sparkles className="size-4" /> {aiBusy ? "Membuat..." : "Generate AI"}
                   </Button>
                 </div>
                 {ideas.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <ul className="mt-3 space-y-1.5">
                     {ideas.map((idea) => (
-                      <button
+                      <li
                         key={idea}
-                        type="button"
-                        onClick={() => setGmail((prev) => (prev.trim() ? `${prev.trim()}\n${idea}` : idea))}
-                        className="rounded-full border border-border bg-muted px-3 py-1 text-xs font-medium hover:bg-accent"
+                        className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted px-3 py-1.5"
                       >
-                        {idea}
-                      </button>
+                        <span className="truncate text-xs font-medium">{idea}</span>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setGmail((prev) => (prev.trim() ? `${prev.trim()}\n${idea}` : idea))}
+                            title="Tambahkan ke form setoran"
+                            className="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                          >
+                            <Plus className="size-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => copyIdea(idea)}
+                            title="Salin"
+                            className="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
+                          >
+                            {copied === idea ? <Check className="size-3.5 text-success" /> : <Copy className="size-3.5" />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIdeas((prev) => prev.filter((i) => i !== idea))}
+                            title="Hapus"
+                            className="rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-destructive"
+                          >
+                            <X className="size-3.5" />
+                          </button>
+                        </div>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 )}
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Saran nama dibuat AI. Buat akun Gmail-nya sendiri, lalu setor alamatnya di sini. Jangan pernah
-                  membagikan kata sandi.
+                  Saran nama dibuat AI: acak, berunsur nama orang, mudah dibaca, dengan 3 angka di belakang. Buat akun
+                  Gmail-nya sendiri, lalu setor alamatnya di sini. Jangan pernah membagikan kata sandi.
                 </p>
               </div>
               <p className="text-xs text-muted-foreground">
