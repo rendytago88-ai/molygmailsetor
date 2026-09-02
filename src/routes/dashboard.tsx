@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet } from "lucide-react";
+import { Check, Copy, LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet, X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { generateGmailIdeas } from "@/lib/gmail-ai.functions";
 
@@ -80,22 +80,34 @@ function Dashboard() {
     const t = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(t);
   }, []);
-  const [hint, setHint] = useState("");
+  const [ideaCount, setIdeaCount] = useState("5");
   const [ideas, setIdeas] = useState<string[]>([]);
   const [aiBusy, setAiBusy] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
   const genFn = useServerFn(generateGmailIdeas);
   const gmailCount = gmail.split(/[\n,;\s]+/).filter((l) => l.trim().length > 0).length;
 
   async function generateIdeas() {
     setAiBusy(true);
     try {
-      const res = await genFn({ data: { hint } });
+      const res = await genFn({ data: { count: Number(ideaCount) } });
       if (res.error) toast.error(res.error);
       setIdeas(res.suggestions ?? []);
     } catch {
       toast.error("Gagal membuat saran.");
     } finally {
       setAiBusy(false);
+    }
+  }
+
+  async function copyIdea(idea: string) {
+    try {
+      await navigator.clipboard.writeText(idea);
+      setCopied(idea);
+      toast.success("Disalin ke clipboard");
+      setTimeout(() => setCopied((c) => (c === idea ? null : c)), 1500);
+    } catch {
+      toast.error("Gagal menyalin.");
     }
   }
 
