@@ -18,6 +18,8 @@ export type SiteSettings = {
   whatsapp_group: string;
   whatsapp_channel: string;
   deposits_open: boolean;
+  payout_provider: string;
+  payout_auto: boolean;
 };
 
 export type Deposit = {
@@ -40,6 +42,10 @@ export type Withdrawal = {
   status: Status;
   admin_note: string;
   created_at: string;
+  payout_status: string;
+  payout_ref: string;
+  payout_error: string;
+  paid_at: string | null;
 };
 
 export type Profile = {

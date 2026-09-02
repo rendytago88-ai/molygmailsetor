@@ -84,6 +84,8 @@ export type Database = {
           general_title: string
           id: number
           min_withdraw: number
+          payout_auto: boolean
+          payout_provider: string
           price_per_account: number
           rules: string
           rules_title: string
@@ -102,6 +104,8 @@ export type Database = {
           general_title?: string
           id?: number
           min_withdraw?: number
+          payout_auto?: boolean
+          payout_provider?: string
           price_per_account?: number
           rules?: string
           rules_title?: string
@@ -120,6 +124,8 @@ export type Database = {
           general_title?: string
           id?: number
           min_withdraw?: number
+          payout_auto?: boolean
+          payout_provider?: string
           price_per_account?: number
           rules?: string
           rules_title?: string
@@ -161,6 +167,10 @@ export type Database = {
           ewallet_name: string
           ewallet_number: string
           id: string
+          paid_at: string | null
+          payout_error: string
+          payout_ref: string
+          payout_status: string
           status: Database["public"]["Enums"]["item_status"]
           updated_at: string
           user_id: string
@@ -173,6 +183,10 @@ export type Database = {
           ewallet_name: string
           ewallet_number: string
           id?: string
+          paid_at?: string | null
+          payout_error?: string
+          payout_ref?: string
+          payout_status?: string
           status?: Database["public"]["Enums"]["item_status"]
           updated_at?: string
           user_id: string
@@ -185,6 +199,10 @@ export type Database = {
           ewallet_name?: string
           ewallet_number?: string
           id?: string
+          paid_at?: string | null
+          payout_error?: string
+          payout_ref?: string
+          payout_status?: string
           status?: Database["public"]["Enums"]["item_status"]
           updated_at?: string
           user_id?: string
