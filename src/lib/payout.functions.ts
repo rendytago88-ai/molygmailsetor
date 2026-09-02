@@ -59,7 +59,7 @@ async function sendToEwallet(input: {
           },
           amount: input.amount,
           currency: "IDR",
-ковых        }),
+}),
       });
       const json = (await res.json()) as { id?: string; message?: string; error_code?: string };
       if (!res.ok) return { ok: false, ref: "", error: json.message ?? json.error_code ?? "Pencairan ditolak penyedia." };
