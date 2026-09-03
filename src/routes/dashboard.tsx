@@ -564,6 +564,10 @@ function Dashboard() {
                       {w.ewallet} · {w.ewallet_number} · {w.ewallet_name}
                       {w.admin_note ? ` · ${w.admin_note}` : ""}
                     </p>
+                    <p className="text-xs text-muted-foreground">
+                      Pencairan: {payoutStatusLabel[(w.payout_status ?? "unpaid") as PayoutStatus] ?? w.payout_status}
+                      {w.paid_at ? ` · ${new Date(w.paid_at).toLocaleString("id-ID")}` : ""}
+                    </p>
                   </div>
                   <StatusPill status={w.status} />
                 </div>
