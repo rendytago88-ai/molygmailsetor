@@ -47,6 +47,8 @@ function AdminPage() {
   const { data: settings } = useQuery(settingsQuery);
   const [form, setForm] = useState<SiteSettings | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [payingId, setPayingId] = useState<string | null>(null);
+  const payoutFn = useServerFn(processPayout);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
