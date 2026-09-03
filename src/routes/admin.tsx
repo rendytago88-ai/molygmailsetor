@@ -461,6 +461,31 @@ function AdminPage() {
                   onCheckedChange={(v) => setForm({ ...form, deposits_open: v })}
                 />
               </div>
+              <div className="flex items-center justify-between rounded-xl border border-border p-4 sm:col-span-2">
+                <div>
+                  <p className="text-sm font-semibold">Kirim dana otomatis</p>
+                  <p className="text-xs text-muted-foreground">
+                    Saat penarikan disetujui, dana langsung dikirim ke e-wallet pengguna.
+                  </p>
+                </div>
+                <Switch
+                  checked={form.payout_auto}
+                  onCheckedChange={(v) => setForm({ ...form, payout_auto: v })}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Penyedia pencairan</Label>
+                <Input
+                  value={form.payout_provider}
+                  onChange={(e) => setForm({ ...form, payout_provider: e.target.value })}
+                  placeholder="manual / xendit"
+                  maxLength={40}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Isi "xendit" bila kunci API penyedia sudah dipasang. Selama masih "manual", penarikan yang disetujui
+                  ditandai perlu transfer manual.
+                </p>
+              </div>
               <Button className="rounded-full sm:col-span-2" onClick={saveSettings}>
                 <Save className="size-4" /> Simpan pengaturan
               </Button>
