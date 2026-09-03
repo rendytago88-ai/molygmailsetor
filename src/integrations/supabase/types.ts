@@ -88,6 +88,7 @@ export type Database = {
           payout_provider: string
           price_per_account: number
           rules: string
+          rules_images: string[]
           rules_title: string
           tagline: string
           updated_at: string
@@ -108,6 +109,7 @@ export type Database = {
           payout_provider?: string
           price_per_account?: number
           rules?: string
+          rules_images?: string[]
           rules_title?: string
           tagline?: string
           updated_at?: string
@@ -128,6 +130,7 @@ export type Database = {
           payout_provider?: string
           price_per_account?: number
           rules?: string
+          rules_images?: string[]
           rules_title?: string
           tagline?: string
           updated_at?: string

@@ -1,0 +1,1 @@
+ALTER TABLE public.site_settings ADD COLUMN IF NOT EXISTS rules_images text[] NOT NULL DEFAULT '{}'::text[];
