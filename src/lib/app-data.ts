@@ -13,6 +13,7 @@ export type SiteSettings = {
   announcement: string;
   rules: string;
   rules_title: string;
+  rules_images: string[];
   general: string;
   general_title: string;
   whatsapp_group: string;
@@ -69,6 +70,15 @@ export const settingsQuery = {
     return data as unknown as SiteSettings;
   },
 };
+
+export const RULES_BUCKET = "site-images";
+
+export async function signRulesImages(paths: string[]): Promise<string[]> {
+  const clean = (paths ?? []).filter(Boolean);
+  if (!clean.length) return [];
+  const { data } = await supabase.storage.from(RULES_BUCKET).createSignedUrls(clean, 60 * 60);
+  return (data ?? []).map((d) => d.signedUrl).filter(Boolean) as string[];
+}
 
 export const statusLabel: Record<Status, string> = {
   pending: "PENDING",
