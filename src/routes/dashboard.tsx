@@ -358,14 +358,42 @@ function Dashboard() {
               Halo, {profile.data?.full_name ?? user.email} · {rupiah(settings?.price_per_account ?? 0)} / akun
             </p>
           </div>
-          <div className="surface-card p-6">
-            <p className="text-sm text-muted-foreground">Setoran disetujui</p>
-            <p className="mt-1 text-3xl font-extrabold">
-              {(deposits.data ?? []).filter((d) => d.status === "approved").length}
+          <div className="surface-card flex flex-col p-6">
+            <div className="flex items-center gap-2">
+              <span className="grid size-9 shrink-0 place-items-center rounded-full bg-accent text-accent-foreground">
+                <FileText className="size-4" />
+              </span>
+              <p className="text-sm font-semibold">{settings?.rules_title || "Syarat & Ketentuan"}</p>
+            </div>
+            <p className="mt-3 line-clamp-3 whitespace-pre-line text-xs text-muted-foreground">
+              {settings?.rules || "Belum ada syarat & ketentuan."}
             </p>
-            <p className="mt-2 text-xs text-muted-foreground">
-              {(deposits.data ?? []).filter((d) => d.status === "pending").length} menunggu
-            </p>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="mt-4 w-full rounded-full">
+                  Baca selengkapnya
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-h-[85vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{settings?.rules_title || "Syarat & Ketentuan"}</DialogTitle>
+                </DialogHeader>
+                <p className="whitespace-pre-line text-sm text-muted-foreground">
+                  {settings?.rules || "Belum ada syarat & ketentuan."}
+                </p>
+                <div className="grid gap-3">
+                  {(rulesImages.data ?? []).map((src, i) => (
+                    <img
+                      key={src}
+                      src={src}
+                      alt={`Lampiran syarat & ketentuan ${i + 1}`}
+                      loading="lazy"
+                      className="w-full rounded-xl border border-border"
+                    />
+                  ))}
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
