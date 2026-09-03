@@ -176,6 +176,8 @@ function AdminPage() {
         whatsapp_group: form.whatsapp_group.trim().slice(0, 300),
         whatsapp_channel: form.whatsapp_channel.trim().slice(0, 300),
         deposits_open: form.deposits_open,
+        payout_auto: form.payout_auto,
+        payout_provider: form.payout_provider.trim().slice(0, 40) || "manual",
       })
       .eq("id", 1);
     if (error) {
