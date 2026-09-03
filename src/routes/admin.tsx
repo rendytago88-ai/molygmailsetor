@@ -279,20 +279,38 @@ function AdminPage() {
                     <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusTone[w.status]}`}>
                       {statusLabel[w.status]}
                     </span>
+                    <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                      {payoutStatusLabel[(w.payout_status ?? "unpaid") as PayoutStatus] ?? w.payout_status}
+                    </span>
                     <Button size="icon" variant="outline" onClick={() => setWithdrawStatus(w.id, "approved")}>
                       <Check className="size-4 text-success" />
                     </Button>
                     <Button size="icon" variant="outline" onClick={() => setWithdrawStatus(w.id, "rejected")}>
                       <X className="size-4 text-destructive" />
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={payingId === w.id || w.status !== "approved" || w.payout_status === "paid"}
+                      onClick={() => void runPayout(w.id)}
+                    >
+                      <Send className="mr-1 size-4" />
+                      {payingId === w.id ? "Mengirim…" : "Kirim dana"}
+                    </Button>
                   </div>
-                  <div className="w-full">
+                  <div className="w-full space-y-2">
                     <Input
                       value={notes[w.id] ?? w.admin_note ?? ""}
                       onChange={(e) => setNotes({ ...notes, [w.id]: e.target.value })}
                       placeholder="Alasan diterima / ditolak (tampil ke pengguna)"
                       maxLength={300}
                     />
+                    {w.payout_error ? (
+                      <p className="text-xs text-destructive">Pencairan: {w.payout_error}</p>
+                    ) : null}
+                    {w.payout_ref ? (
+                      <p className="text-xs text-muted-foreground">Ref transaksi: {w.payout_ref}</p>
+                    ) : null}
                   </div>
                 </div>
               ))}
