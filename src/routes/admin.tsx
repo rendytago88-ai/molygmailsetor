@@ -118,6 +118,20 @@ function AdminPage() {
     refresh();
   }
 
+  async function runPayout(id: string) {
+    setPayingId(id);
+    try {
+      const res = await payoutFn({ data: { withdrawalId: id } });
+      if (res.status === "paid") toast.success(res.message);
+      else toast.warning(res.message);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal memproses pencairan");
+    } finally {
+      setPayingId(null);
+      refresh();
+    }
+  }
+
   async function setWithdrawStatus(id: string, status: Status) {
     const { error } = await supabase
       .from("withdrawals")
@@ -129,6 +143,7 @@ function AdminPage() {
     }
     toast.success(`Penarikan ${statusLabel[status].toLowerCase()}`);
     refresh();
+    if (status === "approved" && settings?.payout_auto !== false) await runPayout(id);
   }
 
   async function removeDeposit(id: string) {
