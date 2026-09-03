@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Check, Copy, LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet, X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { generateGmailIdeas } from "@/lib/gmail-ai.functions";
+import { payoutStatusLabel, type PayoutStatus } from "@/lib/payout.functions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
