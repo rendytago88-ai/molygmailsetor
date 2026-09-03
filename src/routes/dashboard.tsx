@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Check, Copy, LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet, X } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { generateGmailIdeas } from "@/lib/gmail-ai.functions";
+import { payoutStatusLabel, type PayoutStatus } from "@/lib/payout.functions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -563,6 +564,10 @@ function Dashboard() {
                     <p className="truncate text-xs text-muted-foreground">
                       {w.ewallet} · {w.ewallet_number} · {w.ewallet_name}
                       {w.admin_note ? ` · ${w.admin_note}` : ""}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Pencairan: {payoutStatusLabel[(w.payout_status ?? "unpaid") as PayoutStatus] ?? w.payout_status}
+                      {w.paid_at ? ` · ${new Date(w.paid_at).toLocaleString("id-ID")}` : ""}
                     </p>
                   </div>
                   <StatusPill status={w.status} />

@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Save, Trash2, X } from "lucide-react";
+import { ArrowLeft, Check, Save, Send, Trash2, X } from "lucide-react";
+import { processPayout, payoutStatusLabel, type PayoutStatus } from "@/lib/payout.functions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +47,8 @@ function AdminPage() {
   const { data: settings } = useQuery(settingsQuery);
   const [form, setForm] = useState<SiteSettings | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [payingId, setPayingId] = useState<string | null>(null);
+  const payoutFn = useServerFn(processPayout);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -116,6 +120,20 @@ function AdminPage() {
     refresh();
   }
 
+  async function runPayout(id: string) {
+    setPayingId(id);
+    try {
+      const res = await payoutFn({ data: { withdrawalId: id } });
+      if (res.status === "paid") toast.success(res.message);
+      else toast.warning(res.message);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal memproses pencairan");
+    } finally {
+      setPayingId(null);
+      refresh();
+    }
+  }
+
   async function setWithdrawStatus(id: string, status: Status) {
     const { error } = await supabase
       .from("withdrawals")
@@ -127,6 +145,7 @@ function AdminPage() {
     }
     toast.success(`Penarikan ${statusLabel[status].toLowerCase()}`);
     refresh();
+    if (status === "approved" && settings?.payout_auto !== false) await runPayout(id);
   }
 
   async function removeDeposit(id: string) {
@@ -157,6 +176,8 @@ function AdminPage() {
         whatsapp_group: form.whatsapp_group.trim().slice(0, 300),
         whatsapp_channel: form.whatsapp_channel.trim().slice(0, 300),
         deposits_open: form.deposits_open,
+        payout_auto: form.payout_auto,
+        payout_provider: form.payout_provider.trim().slice(0, 40) || "manual",
       })
       .eq("id", 1);
     if (error) {
@@ -279,20 +300,38 @@ function AdminPage() {
                     <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusTone[w.status]}`}>
                       {statusLabel[w.status]}
                     </span>
+                    <span className="rounded-full border border-border px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                      {payoutStatusLabel[(w.payout_status ?? "unpaid") as PayoutStatus] ?? w.payout_status}
+                    </span>
                     <Button size="icon" variant="outline" onClick={() => setWithdrawStatus(w.id, "approved")}>
                       <Check className="size-4 text-success" />
                     </Button>
                     <Button size="icon" variant="outline" onClick={() => setWithdrawStatus(w.id, "rejected")}>
                       <X className="size-4 text-destructive" />
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={payingId === w.id || w.status !== "approved" || w.payout_status === "paid"}
+                      onClick={() => void runPayout(w.id)}
+                    >
+                      <Send className="mr-1 size-4" />
+                      {payingId === w.id ? "Mengirim…" : "Kirim dana"}
+                    </Button>
                   </div>
-                  <div className="w-full">
+                  <div className="w-full space-y-2">
                     <Input
                       value={notes[w.id] ?? w.admin_note ?? ""}
                       onChange={(e) => setNotes({ ...notes, [w.id]: e.target.value })}
                       placeholder="Alasan diterima / ditolak (tampil ke pengguna)"
                       maxLength={300}
                     />
+                    {w.payout_error ? (
+                      <p className="text-xs text-destructive">Pencairan: {w.payout_error}</p>
+                    ) : null}
+                    {w.payout_ref ? (
+                      <p className="text-xs text-muted-foreground">Ref transaksi: {w.payout_ref}</p>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -423,6 +462,31 @@ function AdminPage() {
                   checked={form.deposits_open}
                   onCheckedChange={(v) => setForm({ ...form, deposits_open: v })}
                 />
+              </div>
+              <div className="flex items-center justify-between rounded-xl border border-border p-4 sm:col-span-2">
+                <div>
+                  <p className="text-sm font-semibold">Kirim dana otomatis</p>
+                  <p className="text-xs text-muted-foreground">
+                    Saat penarikan disetujui, dana langsung dikirim ke e-wallet pengguna.
+                  </p>
+                </div>
+                <Switch
+                  checked={form.payout_auto}
+                  onCheckedChange={(v) => setForm({ ...form, payout_auto: v })}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Penyedia pencairan</Label>
+                <Input
+                  value={form.payout_provider}
+                  onChange={(e) => setForm({ ...form, payout_provider: e.target.value })}
+                  placeholder="manual / xendit"
+                  maxLength={40}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Isi "xendit" bila kunci API penyedia sudah dipasang. Selama masih "manual", penarikan yang disetujui
+                  ditandai perlu transfer manual.
+                </p>
               </div>
               <Button className="rounded-full sm:col-span-2" onClick={saveSettings}>
                 <Save className="size-4" /> Simpan pengaturan
