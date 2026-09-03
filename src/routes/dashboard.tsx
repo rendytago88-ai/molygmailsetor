@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Check, Copy, LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet, X } from "lucide-react";
+import { Check, CheckCircle2, Clock, Copy, LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet, X, XCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { generateGmailIdeas } from "@/lib/gmail-ai.functions";
 import { payoutStatusLabel, type PayoutStatus } from "@/lib/payout.functions";
@@ -367,6 +367,45 @@ function Dashboard() {
               {(deposits.data ?? []).filter((d) => d.status === "pending").length} menunggu
             </p>
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[
+            {
+              label: "DITERIMA",
+              value: String((deposits.data ?? []).filter((d) => d.status === "approved").length),
+              icon: CheckCircle2,
+              tone: "bg-success/10 text-success",
+            },
+            {
+              label: "PENDING",
+              value: String((deposits.data ?? []).filter((d) => d.status === "pending").length),
+              icon: Clock,
+              tone: "bg-warning/15 text-warning",
+            },
+            {
+              label: "DITOLAK",
+              value: String((deposits.data ?? []).filter((d) => d.status === "rejected").length),
+              icon: XCircle,
+              tone: "bg-destructive/10 text-destructive",
+            },
+            {
+              label: "HARGA",
+              value: rupiah(settings?.price_per_account ?? 0),
+              icon: Mail,
+              tone: "bg-accent text-accent-foreground",
+            },
+          ].map((s) => (
+            <div key={s.label} className="surface-card flex items-center gap-3 p-4">
+              <span className={`grid size-10 shrink-0 place-items-center rounded-full ${s.tone}`}>
+                <s.icon className="size-5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold tracking-wide text-muted-foreground">{s.label}</p>
+                <p className="truncate text-xl font-extrabold">{s.value}</p>
+              </div>
+            </div>
+          ))}
         </div>
 
         <Tabs defaultValue="setor">
