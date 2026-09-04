@@ -39,6 +39,7 @@ import {
   statusTone,
   type Deposit,
   type Profile,
+  type Status,
   type Withdrawal,
 } from "@/lib/app-data";
 
@@ -457,8 +458,11 @@ function Dashboard() {
             <TabsTrigger value="tarik" className="flex-1">
               Tarik Saldo
             </TabsTrigger>
-            <TabsTrigger value="riwayat" className="flex-1">
-              Riwayat
+            <TabsTrigger value="riwayat-setor" className="flex-1">
+              Riwayat Setoran
+            </TabsTrigger>
+            <TabsTrigger value="riwayat-tarik" className="flex-1">
+              Riwayat Penarikan
             </TabsTrigger>
           </TabsList>
 
@@ -656,43 +660,73 @@ function Dashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="riwayat" className="space-y-4 pt-4">
+          <TabsContent value="riwayat-setor" className="space-y-4 pt-4">
             <div className="surface-card divide-y divide-border overflow-hidden">
-              {history.length === 0 && (
-                <p className="p-6 text-center text-sm text-muted-foreground">Belum ada riwayat.</p>
+              {history.filter((h) => h.kind === "setor").length === 0 && (
+                <p className="p-6 text-center text-sm text-muted-foreground">Belum ada riwayat setoran.</p>
               )}
-              {history.map((h) => (
-                <div key={`${h.kind}-${h.id}`} className="space-y-1.5 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold">{h.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {h.kind === "setor" ? "Setoran Gmail" : "Penarikan saldo"} ·{" "}
-                        {new Date(h.created_at).toLocaleString("id-ID")}
-                      </p>
-                    </div>
-                    <StatusPill status={h.status} />
-                  </div>
-                  <p className="rounded-xl bg-muted px-3 py-2 text-xs text-muted-foreground">
-                    <span className="font-semibold">
-                      {h.status === "approved"
-                        ? "Alasan diterima: "
-                        : h.status === "rejected"
-                          ? "Alasan ditolak: "
-                          : "Catatan: "}
-                    </span>
-                    {h.admin_note
-                      ? h.admin_note
-                      : h.status === "pending"
-                        ? "Sedang menunggu peninjauan admin."
-                        : "Admin tidak menuliskan alasan."}
-                  </p>
-                </div>
-              ))}
+              {history
+                .filter((h) => h.kind === "setor")
+                .map((h) => (
+                  <HistoryRow key={`setor-${h.id}`} h={h} />
+                ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="riwayat-tarik" className="space-y-4 pt-4">
+            <div className="surface-card divide-y divide-border overflow-hidden">
+              {history.filter((h) => h.kind === "tarik").length === 0 && (
+                <p className="p-6 text-center text-sm text-muted-foreground">Belum ada riwayat penarikan.</p>
+              )}
+              {history
+                .filter((h) => h.kind === "tarik")
+                .map((h) => (
+                  <HistoryRow key={`tarik-${h.id}`} h={h} />
+                ))}
             </div>
           </TabsContent>
         </Tabs>
       </main>
+    </div>
+  );
+}
+
+type HistoryItem = {
+  kind: "setor" | "tarik";
+  id: string;
+  title: string;
+  status: Status;
+  admin_note: string;
+  created_at: string;
+};
+
+function HistoryRow({ h }: { h: HistoryItem }) {
+  return (
+    <div className="space-y-1.5 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold">{h.title}</p>
+          <p className="text-xs text-muted-foreground">
+            {h.kind === "setor" ? "Setoran Gmail" : "Penarikan saldo"} ·{" "}
+            {new Date(h.created_at).toLocaleString("id-ID")}
+          </p>
+        </div>
+        <StatusPill status={h.status} />
+      </div>
+      <p className="rounded-xl bg-muted px-3 py-2 text-xs text-muted-foreground">
+        <span className="font-semibold">
+          {h.status === "approved"
+            ? "Alasan diterima: "
+            : h.status === "rejected"
+              ? "Alasan ditolak: "
+              : "Catatan: "}
+        </span>
+        {h.admin_note
+          ? h.admin_note
+          : h.status === "pending"
+            ? "Sedang menunggu peninjauan admin."
+            : "Admin tidak menuliskan alasan."}
+      </p>
     </div>
   );
 }
