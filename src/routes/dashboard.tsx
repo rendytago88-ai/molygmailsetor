@@ -76,6 +76,11 @@ function Dashboard() {
   const { user, loading } = useAuth();
   const isAdmin = useIsAdmin(user?.id);
   const { data: settings } = useQuery(settingsQuery);
+  const rulesImages = useQuery({
+    queryKey: ["rules-images", settings?.rules_images ?? []],
+    queryFn: () => signRulesImages(settings?.rules_images ?? []),
+    enabled: (settings?.rules_images ?? []).length > 0,
+  });
 
   const [gmail, setGmail] = useState("");
   const [amount, setAmount] = useState("");
