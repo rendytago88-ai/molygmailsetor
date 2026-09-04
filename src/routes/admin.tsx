@@ -171,6 +171,7 @@ function AdminPage() {
         announcement: form.announcement.slice(0, 300),
         rules: form.rules.slice(0, 2000),
         rules_title: form.rules_title.slice(0, 80),
+        rules_images: form.rules_images ?? [],
         general: form.general.slice(0, 2000),
         general_title: form.general_title.slice(0, 80),
         whatsapp_group: form.whatsapp_group.trim().slice(0, 300),
@@ -452,6 +453,40 @@ function AdminPage() {
                   onChange={(e) => setForm({ ...form, rules: e.target.value })}
                   rows={6}
                 />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Foto syarat & ketentuan</Label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={uploading}
+                  onChange={(e) => void uploadRulesImages(e.target.files)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Maksimal 5 MB per foto. Foto tampil di menu Syarat & Ketentuan. Tekan Simpan setelah
+                  mengunggah.
+                </p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {(form.rules_images ?? []).map((path) => (
+                    <div key={path} className="relative overflow-hidden rounded-xl border border-border">
+                      <img
+                        src={previewUrls[path] ?? ""}
+                        alt="Foto syarat & ketentuan"
+                        className="h-28 w-full object-cover"
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="destructive"
+                        className="absolute right-1 top-1 size-7"
+                        onClick={() => removeRulesImage(path)}
+                      >
+                        <Trash2 className="size-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="flex items-center justify-between rounded-xl border border-border p-4 sm:col-span-2">
                 <div>
