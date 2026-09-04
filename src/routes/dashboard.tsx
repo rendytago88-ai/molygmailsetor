@@ -457,8 +457,11 @@ function Dashboard() {
             <TabsTrigger value="tarik" className="flex-1">
               Tarik Saldo
             </TabsTrigger>
-            <TabsTrigger value="riwayat" className="flex-1">
-              Riwayat
+            <TabsTrigger value="riwayat-setor" className="flex-1">
+              Riwayat Setoran
+            </TabsTrigger>
+            <TabsTrigger value="riwayat-tarik" className="flex-1">
+              Riwayat Penarikan
             </TabsTrigger>
           </TabsList>
 
