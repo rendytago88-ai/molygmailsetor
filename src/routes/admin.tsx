@@ -157,6 +157,37 @@ function AdminPage() {
     refresh();
   }
 
+  async function uploadRulesImages(files: FileList | null) {
+    if (!files || !files.length || !form) return;
+    setUploading(true);
+    try {
+      const paths: string[] = [];
+      for (const file of Array.from(files)) {
+        const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().slice(0, 5);
+        const path = `rules/${crypto.randomUUID()}.${ext}`;
+        const { error } = await supabase.storage.from(RULES_BUCKET).upload(path, file, {
+          contentType: file.type || "image/jpeg",
+        });
+        if (error) {
+          toast.error(error.message);
+          continue;
+        }
+        paths.push(path);
+      }
+      if (paths.length) {
+        setForm((f) => (f ? { ...f, rules_images: [...(f.rules_images ?? []), ...paths] } : f));
+        toast.success(`${paths.length} foto diunggah — tekan Simpan`);
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeRulesImage(path: string) {
+    setForm((f) => (f ? { ...f, rules_images: (f.rules_images ?? []).filter((p) => p !== path) } : f));
+    void supabase.storage.from(RULES_BUCKET).remove([path]);
+  }
+
   async function saveSettings() {
     if (!form) return;
     const { error } = await supabase
