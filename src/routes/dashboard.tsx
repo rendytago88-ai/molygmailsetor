@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Check, CheckCircle2, Clock, Copy, LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet, X, XCircle } from "lucide-react";
+import { Check, CheckCircle2, Clock, Copy, FileText, LogOut, Mail, MessageCircle, Plus, Radio, Shield, Sparkles, Trash2, Users, Wallet, X, XCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { generateGmailIdeas } from "@/lib/gmail-ai.functions";
 import { payoutStatusLabel, type PayoutStatus } from "@/lib/payout.functions";
@@ -20,6 +20,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import {
@@ -27,6 +34,7 @@ import {
   depositScheduleOpen,
   rupiah,
   settingsQuery,
+  signRulesImages,
   statusLabel,
   statusTone,
   type Deposit,
@@ -68,6 +76,11 @@ function Dashboard() {
   const { user, loading } = useAuth();
   const isAdmin = useIsAdmin(user?.id);
   const { data: settings } = useQuery(settingsQuery);
+  const rulesImages = useQuery({
+    queryKey: ["rules-images", settings?.rules_images ?? []],
+    queryFn: () => signRulesImages(settings?.rules_images ?? []),
+    enabled: (settings?.rules_images ?? []).length > 0,
+  });
 
   const [gmail, setGmail] = useState("");
   const [amount, setAmount] = useState("");

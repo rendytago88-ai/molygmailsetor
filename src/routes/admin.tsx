@@ -15,8 +15,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import {
+  RULES_BUCKET,
   rupiah,
   settingsQuery,
+  signRulesImages,
   statusLabel,
   statusTone,
   type Deposit,
@@ -48,7 +50,30 @@ function AdminPage() {
   const [form, setForm] = useState<SiteSettings | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [payingId, setPayingId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
   const payoutFn = useServerFn(processPayout);
+
+  const rulesImagePaths = (form?.rules_images ?? []).join(",");
+  useEffect(() => {
+    const paths = rulesImagePaths ? rulesImagePaths.split(",") : [];
+    if (!paths.length) {
+      setPreviewUrls({});
+      return;
+    }
+    let active = true;
+    void signRulesImages(paths).then((urls) => {
+      if (!active) return;
+      const map: Record<string, string> = {};
+      paths.forEach((p, i) => {
+        if (urls[i]) map[p] = urls[i];
+      });
+      setPreviewUrls(map);
+    });
+    return () => {
+      active = false;
+    };
+  }, [rulesImagePaths]);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
@@ -157,6 +182,37 @@ function AdminPage() {
     refresh();
   }
 
+  async function uploadRulesImages(files: FileList | null) {
+    if (!files || !files.length || !form) return;
+    setUploading(true);
+    try {
+      const paths: string[] = [];
+      for (const file of Array.from(files)) {
+        const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().slice(0, 5);
+        const path = `rules/${crypto.randomUUID()}.${ext}`;
+        const { error } = await supabase.storage.from(RULES_BUCKET).upload(path, file, {
+          contentType: file.type || "image/jpeg",
+        });
+        if (error) {
+          toast.error(error.message);
+          continue;
+        }
+        paths.push(path);
+      }
+      if (paths.length) {
+        setForm((f) => (f ? { ...f, rules_images: [...(f.rules_images ?? []), ...paths] } : f));
+        toast.success(`${paths.length} foto diunggah — tekan Simpan`);
+      }
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeRulesImage(path: string) {
+    setForm((f) => (f ? { ...f, rules_images: (f.rules_images ?? []).filter((p) => p !== path) } : f));
+    void supabase.storage.from(RULES_BUCKET).remove([path]);
+  }
+
   async function saveSettings() {
     if (!form) return;
     const { error } = await supabase
@@ -171,6 +227,7 @@ function AdminPage() {
         announcement: form.announcement.slice(0, 300),
         rules: form.rules.slice(0, 2000),
         rules_title: form.rules_title.slice(0, 80),
+        rules_images: form.rules_images ?? [],
         general: form.general.slice(0, 2000),
         general_title: form.general_title.slice(0, 80),
         whatsapp_group: form.whatsapp_group.trim().slice(0, 300),
@@ -452,6 +509,40 @@ function AdminPage() {
                   onChange={(e) => setForm({ ...form, rules: e.target.value })}
                   rows={6}
                 />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Foto syarat & ketentuan</Label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={uploading}
+                  onChange={(e) => void uploadRulesImages(e.target.files)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Maksimal 5 MB per foto. Foto tampil di menu Syarat & Ketentuan. Tekan Simpan setelah
+                  mengunggah.
+                </p>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {(form.rules_images ?? []).map((path) => (
+                    <div key={path} className="relative overflow-hidden rounded-xl border border-border">
+                      <img
+                        src={previewUrls[path] ?? ""}
+                        alt="Foto syarat & ketentuan"
+                        className="h-28 w-full object-cover"
+                      />
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="destructive"
+                        className="absolute right-1 top-1 size-7"
+                        onClick={() => removeRulesImage(path)}
+                      >
+                        <Trash2 className="size-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="flex items-center justify-between rounded-xl border border-border p-4 sm:col-span-2">
                 <div>
