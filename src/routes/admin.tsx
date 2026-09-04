@@ -15,8 +15,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth, useIsAdmin } from "@/hooks/useAuth";
 import {
+  RULES_BUCKET,
   rupiah,
   settingsQuery,
+  signRulesImages,
   statusLabel,
   statusTone,
   type Deposit,
@@ -48,7 +50,30 @@ function AdminPage() {
   const [form, setForm] = useState<SiteSettings | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [payingId, setPayingId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
   const payoutFn = useServerFn(processPayout);
+
+  const rulesImagePaths = (form?.rules_images ?? []).join(",");
+  useEffect(() => {
+    const paths = rulesImagePaths ? rulesImagePaths.split(",") : [];
+    if (!paths.length) {
+      setPreviewUrls({});
+      return;
+    }
+    let active = true;
+    void signRulesImages(paths).then((urls) => {
+      if (!active) return;
+      const map: Record<string, string> = {};
+      paths.forEach((p, i) => {
+        if (urls[i]) map[p] = urls[i];
+      });
+      setPreviewUrls(map);
+    });
+    return () => {
+      active = false;
+    };
+  }, [rulesImagePaths]);
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
