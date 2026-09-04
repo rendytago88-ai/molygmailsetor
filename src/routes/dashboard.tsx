@@ -689,3 +689,43 @@ function Dashboard() {
     </div>
   );
 }
+
+type HistoryItem = {
+  kind: "setor" | "tarik";
+  id: string;
+  title: string;
+  status: Status;
+  admin_note: string;
+  created_at: string;
+};
+
+function HistoryRow({ h }: { h: HistoryItem }) {
+  return (
+    <div className="space-y-1.5 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold">{h.title}</p>
+          <p className="text-xs text-muted-foreground">
+            {h.kind === "setor" ? "Setoran Gmail" : "Penarikan saldo"} ·{" "}
+            {new Date(h.created_at).toLocaleString("id-ID")}
+          </p>
+        </div>
+        <StatusPill status={h.status} />
+      </div>
+      <p className="rounded-xl bg-muted px-3 py-2 text-xs text-muted-foreground">
+        <span className="font-semibold">
+          {h.status === "approved"
+            ? "Alasan diterima: "
+            : h.status === "rejected"
+              ? "Alasan ditolak: "
+              : "Catatan: "}
+        </span>
+        {h.admin_note
+          ? h.admin_note
+          : h.status === "pending"
+            ? "Sedang menunggu peninjauan admin."
+            : "Admin tidak menuliskan alasan."}
+      </p>
+    </div>
+  );
+}
