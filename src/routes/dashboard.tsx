@@ -451,12 +451,15 @@ function Dashboard() {
         </div>
 
         <Tabs defaultValue="setor">
-          <TabsList className="w-full">
+          <TabsList className="w-full flex-wrap">
             <TabsTrigger value="setor" className="flex-1">
               Setor Gmail
             </TabsTrigger>
             <TabsTrigger value="tarik" className="flex-1">
               Tarik Saldo
+            </TabsTrigger>
+            <TabsTrigger value="referral" className="flex-1">
+              Referral
             </TabsTrigger>
             <TabsTrigger value="riwayat-setor" className="flex-1">
               Riwayat Setoran
@@ -465,6 +468,7 @@ function Dashboard() {
               Riwayat Penarikan
             </TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="setor" className="space-y-4 pt-4">
             <div
