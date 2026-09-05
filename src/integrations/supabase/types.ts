@@ -50,6 +50,9 @@ export type Database = {
       profiles: {
         Row: {
           balance: number
+          banned: boolean
+          banned_at: string | null
+          banned_reason: string
           created_at: string
           email: string | null
           full_name: string | null
@@ -62,6 +65,9 @@ export type Database = {
         }
         Insert: {
           balance?: number
+          banned?: boolean
+          banned_at?: string | null
+          banned_reason?: string
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -74,6 +80,9 @@ export type Database = {
         }
         Update: {
           balance?: number
+          banned?: boolean
+          banned_at?: string | null
+          banned_reason?: string
           created_at?: string
           email?: string | null
           full_name?: string | null
