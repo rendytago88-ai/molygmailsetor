@@ -135,17 +135,30 @@ function AuthPage() {
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             {mode === "register" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="name">Nama</Label>
-                <Input
-                  id="name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Nama kamu"
-                  maxLength={80}
-                />
-              </div>
+              <>
+                <div className="space-y-1.5">
+                  <Label htmlFor="name">Nama</Label>
+                  <Input
+                    id="name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Nama kamu"
+                    maxLength={80}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ref">Kode undangan (opsional)</Label>
+                  <Input
+                    id="ref"
+                    value={refCode}
+                    onChange={(e) => setRefCode(e.target.value.toUpperCase())}
+                    placeholder="Contoh: A1B2C3D"
+                    maxLength={12}
+                  />
+                </div>
+              </>
             )}
+
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input
