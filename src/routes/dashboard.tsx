@@ -153,7 +153,21 @@ function Dashboard() {
     },
   });
 
+  const rewards = useQuery({
+    queryKey: ["referral-rewards", user?.id],
+    enabled: !!user,
+    queryFn: async (): Promise<ReferralReward[]> => {
+      const { data, error } = await supabase
+        .from("referral_rewards")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as ReferralReward[];
+    },
+  });
+
   const withdrawals = useQuery({
+
     queryKey: ["withdrawals", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Withdrawal[]> => {
