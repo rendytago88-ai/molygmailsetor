@@ -263,6 +263,13 @@ export type Database = {
     }
     Functions: {
       gen_referral_code: { Args: never; Returns: string }
+      my_referral_stats: {
+        Args: never
+        Returns: {
+          commission: number
+          invited: number
+        }[]
+      }
       recalc_balance: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
