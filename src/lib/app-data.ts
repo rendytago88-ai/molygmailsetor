@@ -68,7 +68,12 @@ export type Profile = {
   full_name: string | null;
   balance: number;
   created_at: string;
+  referral_code: string | null;
+  referred_by: string | null;
+  referral_count: number;
+  referral_earned: number;
 };
+
 
 export const rupiah = (value: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(
