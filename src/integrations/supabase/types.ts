@@ -54,6 +54,8 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          referral_code: string | null
+          referred_by: string | null
           updated_at: string
         }
         Insert: {
@@ -62,6 +64,8 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          referral_code?: string | null
+          referred_by?: string | null
           updated_at?: string
         }
         Update: {
@@ -70,7 +74,36 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          referral_code?: string | null
+          referred_by?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      referral_rewards: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          note: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          note?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          note?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -87,6 +120,10 @@ export type Database = {
           payout_auto: boolean
           payout_provider: string
           price_per_account: number
+          referral_commission: number
+          referral_enabled: boolean
+          referral_info: string
+          referral_target: number
           rules: string
           rules_images: string[]
           rules_title: string
@@ -108,6 +145,10 @@ export type Database = {
           payout_auto?: boolean
           payout_provider?: string
           price_per_account?: number
+          referral_commission?: number
+          referral_enabled?: boolean
+          referral_info?: string
+          referral_target?: number
           rules?: string
           rules_images?: string[]
           rules_title?: string
@@ -129,6 +170,10 @@ export type Database = {
           payout_auto?: boolean
           payout_provider?: string
           price_per_account?: number
+          referral_commission?: number
+          referral_enabled?: boolean
+          referral_info?: string
+          referral_target?: number
           rules?: string
           rules_images?: string[]
           rules_title?: string
@@ -217,6 +262,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      gen_referral_code: { Args: never; Returns: string }
       recalc_balance: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
