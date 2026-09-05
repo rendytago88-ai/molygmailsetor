@@ -579,6 +579,45 @@ function AdminPage() {
                   ditandai perlu transfer manual.
                 </p>
               </div>
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-border p-4 sm:col-span-2">
+                <div>
+                  <p className="text-sm font-semibold">Program referral aktif</p>
+                  <p className="text-xs text-muted-foreground">Pengguna bisa mengundang teman dan dapat komisi.</p>
+                </div>
+                <Switch
+                  checked={form.referral_enabled}
+                  onCheckedChange={(v) => setForm({ ...form, referral_enabled: v })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Jumlah undangan per komisi</Label>
+                <Input
+                  inputMode="numeric"
+                  value={String(form.referral_target)}
+                  onChange={(e) =>
+                    setForm({ ...form, referral_target: Number(e.target.value.replace(/\D/g, "")) })
+                  }
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Komisi per pencapaian (Rp)</Label>
+                <Input
+                  inputMode="numeric"
+                  value={String(form.referral_commission)}
+                  onChange={(e) =>
+                    setForm({ ...form, referral_commission: Number(e.target.value.replace(/\D/g, "")) })
+                  }
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label>Keterangan referral</Label>
+                <Textarea
+                  value={form.referral_info}
+                  onChange={(e) => setForm({ ...form, referral_info: e.target.value })}
+                  rows={2}
+                />
+              </div>
+
               <Button className="rounded-full sm:col-span-2" onClick={saveSettings}>
                 <Save className="size-4" /> Simpan pengaturan
               </Button>
