@@ -235,6 +235,11 @@ function AdminPage() {
         deposits_open: form.deposits_open,
         payout_auto: form.payout_auto,
         payout_provider: form.payout_provider.trim().slice(0, 40) || "manual",
+        referral_enabled: form.referral_enabled,
+        referral_target: Math.max(1, Number(form.referral_target) || 1),
+        referral_commission: Number(form.referral_commission) || 0,
+        referral_info: (form.referral_info ?? "").slice(0, 500),
+
       })
       .eq("id", 1);
     if (error) {
