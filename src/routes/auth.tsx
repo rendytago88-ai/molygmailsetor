@@ -39,7 +39,18 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [refCode, setRefCode] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return (new URLSearchParams(window.location.search).get("ref") ?? "").toUpperCase();
+  });
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("ref")) {
+      setMode("register");
+    }
+  }, []);
+
 
   useEffect(() => {
     if (user) navigate({ to: "/dashboard" });
