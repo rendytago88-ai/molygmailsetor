@@ -39,7 +39,18 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [refCode, setRefCode] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return (new URLSearchParams(window.location.search).get("ref") ?? "").toUpperCase();
+  });
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("ref")) {
+      setMode("register");
+    }
+  }, []);
+
 
   useEffect(() => {
     if (user) navigate({ to: "/dashboard" });
@@ -64,8 +75,12 @@ function AuthPage() {
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { full_name: parsed.data.fullName || parsed.data.email.split("@")[0] },
+            data: {
+              full_name: parsed.data.fullName || parsed.data.email.split("@")[0],
+              ref: refCode.trim().toUpperCase().slice(0, 12),
+            },
           },
+
         });
         if (error) throw error;
         toast.success("Akun dibuat. Silakan masuk.");
@@ -120,17 +135,30 @@ function AuthPage() {
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             {mode === "register" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="name">Nama</Label>
-                <Input
-                  id="name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Nama kamu"
-                  maxLength={80}
-                />
-              </div>
+              <>
+                <div className="space-y-1.5">
+                  <Label htmlFor="name">Nama</Label>
+                  <Input
+                    id="name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Nama kamu"
+                    maxLength={80}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="ref">Kode undangan (opsional)</Label>
+                  <Input
+                    id="ref"
+                    value={refCode}
+                    onChange={(e) => setRefCode(e.target.value.toUpperCase())}
+                    placeholder="Contoh: A1B2C3D"
+                    maxLength={12}
+                  />
+                </div>
+              </>
             )}
+
             <div className="space-y-1.5">
               <Label htmlFor="email">Email</Label>
               <Input

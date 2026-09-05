@@ -39,6 +39,8 @@ import {
   statusTone,
   type Deposit,
   type Profile,
+  type ReferralReward,
+
   type Status,
   type Withdrawal,
 } from "@/lib/app-data";
@@ -153,7 +155,21 @@ function Dashboard() {
     },
   });
 
+  const rewards = useQuery({
+    queryKey: ["referral-rewards", user?.id],
+    enabled: !!user,
+    queryFn: async (): Promise<ReferralReward[]> => {
+      const { data, error } = await supabase
+        .from("referral_rewards")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as ReferralReward[];
+    },
+  });
+
   const withdrawals = useQuery({
+
     queryKey: ["withdrawals", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Withdrawal[]> => {
@@ -451,12 +467,15 @@ function Dashboard() {
         </div>
 
         <Tabs defaultValue="setor">
-          <TabsList className="w-full">
+          <TabsList className="w-full flex-wrap">
             <TabsTrigger value="setor" className="flex-1">
               Setor Gmail
             </TabsTrigger>
             <TabsTrigger value="tarik" className="flex-1">
               Tarik Saldo
+            </TabsTrigger>
+            <TabsTrigger value="referral" className="flex-1">
+              Referral
             </TabsTrigger>
             <TabsTrigger value="riwayat-setor" className="flex-1">
               Riwayat Setoran
@@ -465,6 +484,7 @@ function Dashboard() {
               Riwayat Penarikan
             </TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="setor" className="space-y-4 pt-4">
             <div
@@ -659,6 +679,78 @@ function Dashboard() {
               ))}
             </div>
           </TabsContent>
+
+          <TabsContent value="referral" className="space-y-4 pt-4">
+            {settings?.referral_enabled === false ? (
+              <div className="surface-card p-6 text-sm text-muted-foreground">
+                Program referral sedang dinonaktifkan admin.
+              </div>
+            ) : (
+              <>
+                <div className="surface-card space-y-4 p-6">
+                  <div className="flex items-center gap-2">
+                    <span className="grid size-9 place-items-center rounded-full bg-accent text-accent-foreground">
+                      <Users className="size-4" />
+                    </span>
+                    <p className="text-sm font-semibold">Kode undanganmu</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{settings?.referral_info}</p>
+                  <div className="flex items-center gap-2">
+                    <Input readOnly value={profile.data?.referral_code ?? "—"} className="font-mono text-lg font-bold" />
+                    <Button
+                      variant="outline"
+                      className="rounded-full"
+                      onClick={() => copyIdea(profile.data?.referral_code ?? "")}
+                    >
+                      <Copy className="size-4" />
+                    </Button>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    className="w-full rounded-full"
+                    onClick={() =>
+                      copyIdea(`${window.location.origin}/auth?ref=${profile.data?.referral_code ?? ""}`)
+                    }
+                  >
+                    Salin link undangan
+                  </Button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-border p-3">
+                      <p className="text-xs text-muted-foreground">Teman diundang</p>
+                      <p className="text-xl font-extrabold">{profile.data?.referral_count ?? 0}</p>
+                    </div>
+                    <div className="rounded-xl border border-border p-3">
+                      <p className="text-xs text-muted-foreground">Total komisi</p>
+                      <p className="text-xl font-extrabold">{rupiah(profile.data?.referral_earned ?? 0)}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Komisi {rupiah(settings?.referral_commission ?? 0)} diberikan setiap{" "}
+                    {settings?.referral_target ?? 0} teman berhasil mendaftar dengan kodemu.
+                  </p>
+                </div>
+
+                <div className="surface-card divide-y divide-border overflow-hidden">
+                  {(rewards.data ?? []).length === 0 && (
+                    <p className="p-6 text-center text-sm text-muted-foreground">Belum ada komisi referral.</p>
+                  )}
+                  {(rewards.data ?? []).map((r) => (
+                    <div key={r.id} className="flex items-center justify-between gap-3 p-4">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">{rupiah(r.amount)}</p>
+                        <p className="truncate text-xs text-muted-foreground">{r.note}</p>
+                      </div>
+                      <p className="shrink-0 text-xs text-muted-foreground">
+                        {new Date(r.created_at).toLocaleDateString("id-ID")}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </TabsContent>
+
+
 
           <TabsContent value="riwayat-setor" className="space-y-4 pt-4">
             <div className="surface-card divide-y divide-border overflow-hidden">

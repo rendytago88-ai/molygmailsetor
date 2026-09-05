@@ -21,7 +21,20 @@ export type SiteSettings = {
   deposits_open: boolean;
   payout_provider: string;
   payout_auto: boolean;
+  referral_enabled: boolean;
+  referral_target: number;
+  referral_commission: number;
+  referral_info: string;
 };
+
+export type ReferralReward = {
+  id: string;
+  user_id: string;
+  amount: number;
+  note: string;
+  created_at: string;
+};
+
 
 export type Deposit = {
   id: string;
@@ -55,7 +68,12 @@ export type Profile = {
   full_name: string | null;
   balance: number;
   created_at: string;
+  referral_code: string | null;
+  referred_by: string | null;
+  referral_count: number;
+  referral_earned: number;
 };
+
 
 export const rupiah = (value: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(
