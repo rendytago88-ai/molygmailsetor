@@ -55,6 +55,8 @@ export type Database = {
           full_name: string | null
           id: string
           referral_code: string | null
+          referral_count: number
+          referral_earned: number
           referred_by: string | null
           updated_at: string
         }
@@ -65,6 +67,8 @@ export type Database = {
           full_name?: string | null
           id: string
           referral_code?: string | null
+          referral_count?: number
+          referral_earned?: number
           referred_by?: string | null
           updated_at?: string
         }
@@ -75,6 +79,8 @@ export type Database = {
           full_name?: string | null
           id?: string
           referral_code?: string | null
+          referral_count?: number
+          referral_earned?: number
           referred_by?: string | null
           updated_at?: string
         }
@@ -263,13 +269,6 @@ export type Database = {
     }
     Functions: {
       gen_referral_code: { Args: never; Returns: string }
-      my_referral_stats: {
-        Args: never
-        Returns: {
-          commission: number
-          invited: number
-        }[]
-      }
       recalc_balance: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
