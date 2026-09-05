@@ -39,6 +39,8 @@ import {
   statusTone,
   type Deposit,
   type Profile,
+  type ReferralReward,
+
   type Status,
   type Withdrawal,
 } from "@/lib/app-data";
