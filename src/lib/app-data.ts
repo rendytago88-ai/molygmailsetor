@@ -21,7 +21,20 @@ export type SiteSettings = {
   deposits_open: boolean;
   payout_provider: string;
   payout_auto: boolean;
+  referral_enabled: boolean;
+  referral_target: number;
+  referral_commission: number;
+  referral_info: string;
 };
+
+export type ReferralReward = {
+  id: string;
+  user_id: string;
+  amount: number;
+  note: string;
+  created_at: string;
+};
+
 
 export type Deposit = {
   id: string;
