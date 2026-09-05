@@ -75,8 +75,12 @@ function AuthPage() {
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { full_name: parsed.data.fullName || parsed.data.email.split("@")[0] },
+            data: {
+              full_name: parsed.data.fullName || parsed.data.email.split("@")[0],
+              ref: refCode.trim().toUpperCase().slice(0, 12),
+            },
           },
+
         });
         if (error) throw error;
         toast.success("Akun dibuat. Silakan masuk.");
