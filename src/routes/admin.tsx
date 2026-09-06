@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Save, Send, Trash2, X } from "lucide-react";
+import { ArrowLeft, Ban, Check, Save, Send, Trash2, X } from "lucide-react";
 import { processPayout, payoutStatusLabel, type PayoutStatus } from "@/lib/payout.functions";
 
 import { Button } from "@/components/ui/button";
@@ -181,6 +181,24 @@ function AdminPage() {
     }
     refresh();
   }
+
+  async function setBanned(id: string, banned: boolean, reason: string) {
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        banned,
+        banned_reason: banned ? reason.slice(0, 200) : "",
+        banned_at: banned ? new Date().toISOString() : null,
+      })
+      .eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(banned ? "Pengguna diblokir" : "Blokir dibuka");
+    qc.invalidateQueries({ queryKey: ["admin-users"] });
+  }
+
 
   async function uploadRulesImages(files: FileList | null) {
     if (!files || !files.length || !form) return;
@@ -403,16 +421,57 @@ function AdminPage() {
           <TabsContent value="users" className="pt-4">
             <div className="surface-card divide-y divide-border overflow-hidden">
               {(users.data ?? []).map((u) => (
-                <div key={u.id} className="flex items-center justify-between gap-3 p-4">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{u.full_name ?? "Tanpa nama"}</p>
-                    <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                <div key={u.id} className="space-y-3 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">
+                        {u.full_name ?? "Tanpa nama"}
+                        {u.banned && (
+                          <span className="ml-2 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-bold text-destructive">
+                            DIBLOKIR
+                          </span>
+                        )}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">{u.email}</p>
+                      {u.banned && u.banned_reason && (
+                        <p className="truncate text-xs text-destructive">Alasan: {u.banned_reason}</p>
+                      )}
+                    </div>
+                    <p className="shrink-0 text-sm font-bold text-primary">{rupiah(u.balance)}</p>
                   </div>
-                  <p className="text-sm font-bold text-primary">{rupiah(u.balance)}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {!u.banned && (
+                      <Input
+                        value={notes[`ban-${u.id}`] ?? ""}
+                        onChange={(e) => setNotes({ ...notes, [`ban-${u.id}`]: e.target.value })}
+                        placeholder="Alasan blokir (opsional)"
+                        maxLength={200}
+                        className="h-8 flex-1 min-w-[180px]"
+                      />
+                    )}
+                    <Button
+                      size="sm"
+                      variant={u.banned ? "outline" : "destructive"}
+                      className="rounded-full"
+                      disabled={u.id === user?.id}
+                      onClick={() => setBanned(u.id, !u.banned, notes[`ban-${u.id}`] ?? "")}
+                    >
+                      {u.banned ? (
+                        <>
+                          <Check className="size-4" /> Buka blokir
+                        </>
+                      ) : (
+                        <>
+                          <Ban className="size-4" /> Blokir
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
           </TabsContent>
+
 
           <TabsContent value="settings" className="pt-4">
             <div className="surface-card grid gap-4 p-6 sm:grid-cols-2">
