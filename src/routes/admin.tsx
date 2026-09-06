@@ -182,6 +182,24 @@ function AdminPage() {
     refresh();
   }
 
+  async function setBanned(id: string, banned: boolean, reason: string) {
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        banned,
+        banned_reason: banned ? reason.slice(0, 200) : "",
+        banned_at: banned ? new Date().toISOString() : null,
+      })
+      .eq("id", id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(banned ? "Pengguna diblokir" : "Blokir dibuka");
+    qc.invalidateQueries({ queryKey: ["admin-users"] });
+  }
+
+
   async function uploadRulesImages(files: FileList | null) {
     if (!files || !files.length || !form) return;
     setUploading(true);
