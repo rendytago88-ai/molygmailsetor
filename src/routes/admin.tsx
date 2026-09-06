@@ -336,6 +336,14 @@ function AdminPage() {
           </TabsList>
 
           <TabsContent value="deposits" className="pt-4">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {(deposits.data ?? []).length} setoran
+              </p>
+              <Button size="sm" variant="outline" onClick={() => void copyAllGmails()}>
+                <Copy className="mr-1.5 size-4" /> Salin semua Gmail
+              </Button>
+            </div>
             <div className="surface-card divide-y divide-border overflow-hidden">
               {(deposits.data ?? []).length === 0 && (
                 <p className="p-6 text-center text-sm text-muted-foreground">Belum ada setoran.</p>
