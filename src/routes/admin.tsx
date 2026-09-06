@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Ban, Check, Save, Send, Trash2, X } from "lucide-react";
+import { ArrowLeft, Ban, Check, Copy, Save, Send, Trash2, X } from "lucide-react";
 import { processPayout, payoutStatusLabel, type PayoutStatus } from "@/lib/payout.functions";
 
 import { Button } from "@/components/ui/button";
@@ -199,6 +199,19 @@ function AdminPage() {
     qc.invalidateQueries({ queryKey: ["admin-users"] });
   }
 
+  async function copyAllGmails() {
+    const list = (deposits.data ?? []).map((d) => d.gmail_address).filter(Boolean);
+    if (!list.length) {
+      toast.info("Belum ada Gmail yang bisa disalin");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(list.join("\n"));
+      toast.success(`${list.length} alamat Gmail disalin`);
+    } catch {
+      toast.error("Gagal menyalin, coba lagi");
+    }
+  }
 
   async function uploadRulesImages(files: FileList | null) {
     if (!files || !files.length || !form) return;
@@ -323,6 +336,14 @@ function AdminPage() {
           </TabsList>
 
           <TabsContent value="deposits" className="pt-4">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {(deposits.data ?? []).length} setoran
+              </p>
+              <Button size="sm" variant="outline" onClick={() => void copyAllGmails()}>
+                <Copy className="mr-1.5 size-4" /> Salin semua Gmail
+              </Button>
+            </div>
             <div className="surface-card divide-y divide-border overflow-hidden">
               {(deposits.data ?? []).length === 0 && (
                 <p className="p-6 text-center text-sm text-muted-foreground">Belum ada setoran.</p>
