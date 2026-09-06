@@ -199,6 +199,19 @@ function AdminPage() {
     qc.invalidateQueries({ queryKey: ["admin-users"] });
   }
 
+  async function copyAllGmails() {
+    const list = (deposits.data ?? []).map((d) => d.gmail_address).filter(Boolean);
+    if (!list.length) {
+      toast.info("Belum ada Gmail yang bisa disalin");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(list.join("\n"));
+      toast.success(`${list.length} alamat Gmail disalin`);
+    } catch {
+      toast.error("Gagal menyalin, coba lagi");
+    }
+  }
 
   async function uploadRulesImages(files: FileList | null) {
     if (!files || !files.length || !form) return;
