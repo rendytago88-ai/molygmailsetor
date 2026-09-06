@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Save, Send, Trash2, X } from "lucide-react";
+import { ArrowLeft, Ban, Check, Save, Send, Trash2, X } from "lucide-react";
 import { processPayout, payoutStatusLabel, type PayoutStatus } from "@/lib/payout.functions";
 
 import { Button } from "@/components/ui/button";
