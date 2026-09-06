@@ -72,7 +72,11 @@ export type Profile = {
   referred_by: string | null;
   referral_count: number;
   referral_earned: number;
+  banned: boolean;
+  banned_reason: string;
+  banned_at: string | null;
 };
+
 
 
 export const rupiah = (value: number) =>
