@@ -569,8 +569,8 @@ function Dashboard() {
                   </ul>
                 )}
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Saran nama dibuat AI: acak, berunsur nama orang, mudah dibaca, dengan 3 angka di belakang. Buat akun
-                  Gmail-nya sendiri, lalu setor alamatnya di sini. Jangan pernah membagikan kata sandi.
+                  Saran dibuat otomatis dari nama depan Gmail akunmu, ditambah 2–3 angka acak di belakangnya.
+                  Buat akun Gmail-nya sendiri, lalu setor alamatnya di sini. Jangan pernah membagikan kata sandi.
                 </p>
               </div>
               <p className="text-xs text-muted-foreground">
