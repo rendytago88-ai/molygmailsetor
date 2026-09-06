@@ -66,9 +66,30 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email: parsed.data.email, password });
+        const { data: signedIn, error } = await supabase.auth.signInWithPassword({
+          email: parsed.data.email,
+          password,
+        });
         if (error) throw error;
+        const uid = signedIn.user?.id;
+        if (uid) {
+          const { data: prof } = await supabase
+            .from("profiles")
+            .select("banned, banned_reason")
+            .eq("id", uid)
+            .maybeSingle();
+          const row = prof as { banned?: boolean; banned_reason?: string } | null;
+          if (row?.banned) {
+            await supabase.auth.signOut();
+            throw new Error(
+              row.banned_reason
+                ? `Akun kamu diblokir admin. Alasan: ${row.banned_reason}`
+                : "Akun kamu diblokir admin.",
+            );
+          }
+        }
         toast.success("Berhasil masuk");
+
       } else {
         const { error } = await supabase.auth.signUp({
           email: parsed.data.email,
