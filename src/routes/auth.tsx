@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { settingsQuery } from "@/lib/app-data";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -30,6 +29,20 @@ const schema = z.object({
   password: z.string().min(6, "Kata sandi minimal 6 karakter").max(72),
   fullName: z.string().trim().max(80).optional(),
 });
+
+const UNCONFIRMED_EMAIL_ERROR = "Email not confirmed";
+
+// Supabase mengembalikan pesan bahasa Inggris — petakan yang sering muncul.
+const ERROR_MESSAGES: ReadonlyArray<readonly [needle: string, message: string]> = [
+  ["Invalid login credentials", "Email atau kata sandi salah"],
+  [UNCONFIRMED_EMAIL_ERROR, "Email kamu belum dikonfirmasi. Hubungi admin."],
+  ["already registered", "Email sudah terdaftar"],
+  ["rate limit", "Terlalu banyak permintaan. Coba lagi beberapa menit lagi."],
+];
+
+function authErrorMessage(raw: string): string {
+  return ERROR_MESSAGES.find(([needle]) => raw.includes(needle))?.[1] ?? raw;
+}
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -91,7 +104,7 @@ function AuthPage() {
         toast.success("Berhasil masuk");
 
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data: signedUp, error } = await supabase.auth.signUp({
           email: parsed.data.email,
           password,
           options: {
@@ -101,37 +114,27 @@ function AuthPage() {
               ref: refCode.trim().toUpperCase().slice(0, 12),
             },
           },
-
         });
         if (error) throw error;
-        toast.success("Akun dibuat. Silakan masuk.");
-        setMode("login");
+        // Konfirmasi email dimatikan di Supabase, jadi signUp langsung mengembalikan
+        // session dan efek `user` di atas yang mengarahkan ke /dashboard. Cabang else
+        // hanya jaring aman kalau konfirmasi dinyalakan lagi nanti.
+        if (signedUp.session) {
+          toast.success("Akun dibuat. Selamat datang!");
+        } else {
+          toast.success("Akun dibuat. Cek email untuk konfirmasi.");
+          setMode("login");
+        }
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
-      toast.error(
-        msg.includes("Invalid login credentials")
-          ? "Email atau kata sandi salah"
-          : msg.includes("already registered")
-            ? "Email sudah terdaftar"
-            : msg,
-      );
+      toast.error(authErrorMessage(err instanceof Error ? err.message : "Terjadi kesalahan"));
     } finally {
       setBusy(false);
     }
   }
 
-  async function onGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      toast.error("Gagal masuk dengan Google");
-      return;
-    }
-    if (result.redirected) return;
-    navigate({ to: "/dashboard" });
-  }
+  // Login Google dimatikan sementara — provider Google di Supabase belum punya
+  // OAuth secret, jadi tombolnya dihapus daripada menampilkan error.
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-sky px-5 py-10">
@@ -208,14 +211,6 @@ function AuthPage() {
               {busy ? "Memproses…" : mode === "login" ? "Masuk" : "Daftar"}
             </Button>
           </form>
-
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" /> atau <span className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button variant="outline" className="w-full rounded-full" onClick={onGoogle}>
-            Lanjutkan dengan Google
-          </Button>
 
           <button
             type="button"
