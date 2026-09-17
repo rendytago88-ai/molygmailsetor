@@ -16,9 +16,17 @@ dist-ssr
 .nitro
 *.local
 
+# Environment — never commit real values, use .env.example as the template
+.env
+.env.*
+!.env.example
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
+
+# Vercel
+.vercel
 
 # Editor directories and files
 .vscode/*
